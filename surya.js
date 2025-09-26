@@ -109,7 +109,7 @@ async function reverseWeb(request, target, targetPath) {
   return newResponse;
 }
 
-function getAllConfig(request, hostName, prxList, page = 0) {
+function getAllConfig(request, hostName, prxList, page = 0, selectedProtocol = null, selectedPort = null) {
     const startIndex = PRX_PER_PAGE * page;
     const totalProxies = prxList.length;
     const totalPages = Math.ceil(totalProxies / PRX_PER_PAGE) || 1;
@@ -125,7 +125,7 @@ function getAllConfig(request, hostName, prxList, page = 0) {
 
         // Build HTML
         const document = new Document(request);
-        document.setTitle("Free VPN <span class='text-blue-500 font-semibold'>Cloudflare</span>");
+        document.setTitle("Free Vless Trojan SS");
         document.setTotalProxy(totalProxies);
         document.setPage(page + 1, totalPages);
 
@@ -137,11 +137,14 @@ function getAllConfig(request, hostName, prxList, page = 0) {
 
             uri.searchParams.set("path", `/Free-VPN-Geo-Project/${prxIP}-${prxPort}`);
 
+            const protocolsToUse = selectedProtocol && selectedProtocol !== 'all' ? [selectedProtocol] : PROTOCOLS;
+            const portsToUse = selectedPort && selectedPort !== 'all' ? [parseInt(selectedPort)] : PORTS;
+
             const prxs = [];
-            for (const port of PORTS) {
+            for (const port of portsToUse) {
                 uri.port = port.toString();
                 uri.hash = `${i + 1} ${getFlagEmoji(country)} ${org} WS ${port == 443 ? "TLS" : "NTLS"} [${serviceName}]`;
-                for (const protocol of PROTOCOLS) {
+                for (const protocol of protocolsToUse) {
                     // Special exceptions
                     if (protocol === "ss") {
                         uri.username = btoa(`none:${uuid}`);
@@ -230,16 +233,18 @@ export default {
       if (url.pathname.startsWith("/sub")) {
         const page = url.pathname.match(/^\/sub\/(\d+)$/);
         const pageIndex = parseInt(page ? page[1] : "0");
-        const hostname = request.headers.get("Host");
 
         // Queries
-        const countrySelect = url.searchParams.get("cc")?.toUpperCase().split(",");
+        const hostname = url.searchParams.get("host") || "ava.game.naver.com";
+        const countrySelect = url.searchParams.get("cc")?.toUpperCase();
+        const selectedProtocol = url.searchParams.get("vpn");
+        const selectedPort = url.searchParams.get("port");
         const searchKeywords = url.searchParams.get("search")?.toLowerCase() || "";
         const prxBankUrl = url.searchParams.get("prx-list") || env.PRX_BANK_URL;
         let prxList = (await getPrxList(prxBankUrl)).filter((prx) => {
           // Filter prxs by Country
-          if (countrySelect && countrySelect[0]) {
-            if (!countrySelect.includes(prx.country)) return false;
+          if (countrySelect && countrySelect !== 'ALL') {
+            if (prx.country !== countrySelect) return false;
           }
 
           // Filter by search keywords
@@ -258,7 +263,7 @@ export default {
           return true;
         });
 
-        const result = getAllConfig(request, hostname, prxList, pageIndex);
+        const result = getAllConfig(request, hostname, prxList, pageIndex, selectedProtocol, selectedPort);
         return new Response(result, {
           status: 200,
           headers: { "Content-Type": "text/html;charset=utf-8" },
@@ -1206,18 +1211,7 @@ let baseHTML = `
         </div>
     </div>
 
-    <!-- Select Country -->
-    <div>
-      <div
-        class="h-full fixed top-0 w-14 bg-gray-100 dark:bg-gray-900 border-r-2 border-gray-300 dark:border-gray-700 z-20 overflow-y-scroll scrollbar-hide"
-      >
-        <div class="text-2xl flex flex-col items-center h-full gap-2 py-2">
-          PLACEHOLDER_BENDERA_NEGARA
-        </div>
-      </div>
-    </div>
-    
-    <div class="ml-16 flex flex-col items-center min-h-screen relative z-10 p-4">
+    <div class="flex flex-col items-center min-h-screen relative z-10 p-4">
   <div class="glass-effect-light dark:glass-effect w-full mb-6 rounded-xl p-4 shadow-lg">
     <div class="flex flex-wrap items-center justify-center gap-3 text-sm font-semibold">
 
@@ -1266,16 +1260,23 @@ let baseHTML = `
   </div>
 
   <div id="container-title" class="sticky top-0 z-10 w-full max-w-7xl rounded-xl py-6 text-center shadow-lg backdrop-blur-md transition-all duration-300 ease-in-out">
-  <div class="relative overflow-hidden">
     <h1 id="runningTitle" class="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 animate-pulse">
       PLACEHOLDER_JUDUL
     </h1>
   </div>
-</div>
 
-        <div class="flex flex-col md:flex-row gap-4 pt-8 w-full max-w-7xl justify-center">
+  <div class="w-full max-w-7xl mx-auto p-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        PLACEHOLDER_PROTOCOL_DROPDOWN
+        PLACEHOLDER_COUNTRY_DROPDOWN
+        PLACEHOLDER_HOST_DROPDOWN
+        PLACEHOLDER_PORT_DROPDOWN
+    </div>
+  </div>
+
+  <div class="flex flex-col md:flex-row gap-4 pt-8 w-full max-w-7xl justify-center">
     PLACEHOLDER_PROXY_GROUP
-</div>
+  </div>
 
         <!-- Pagination -->
         <nav id="container-pagination" class="w-full max-w-7xl mt-8 sticky bottom-2 z-20 transition-transform -translate-y-6 flex flex-col items-center">
@@ -1612,6 +1613,20 @@ let baseHTML = `
         window.location.href = link + window.location.search;
       }
 
+      function applyFilters() {
+          const protocol = document.getElementById('protocol-select').value;
+          const country = document.getElementById('country-select').value;
+          const host = document.getElementById('host-select').value;
+          const port = document.getElementById('port-select').value;
+
+          const url = new URL(window.location.href);
+          url.searchParams.set('vpn', protocol);
+          url.searchParams.set('cc', country);
+          url.searchParams.set('host', host);
+          url.searchParams.set('port', port);
+          window.location.href = url.toString();
+      }
+
       function searchProxy() {
         const searchBar = document.getElementById("search-bar");
         const searchValue = searchBar.value;
@@ -1825,68 +1840,47 @@ setTitle(title) {
     }
 
     buildProxyGroup() {
-    let proxyGroupElement = "";
-    proxyGroupElement += `<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">`;
-    
-    for (let i = 0; i < this.proxies.length; i++) {
-        const prx = this.proxies[i];
-
-        // Assign proxies
-        proxyGroupElement += `<div class="lozad scale-95 mb-4 bg-blue-300/30 dark:bg-slate-800 transition-all duration-300 rounded-lg p-6 flex flex-col shadow-lg border border-white/20 hover:scale-105 backdrop-blur-md">`;
-        
-        // Header Kartu: Ping dan Bendera
-        proxyGroupElement += `  <div class="flex justify-between items-center">`;
-        
-        // Elemen Ping di kiri
-        proxyGroupElement += `    <div id="ping-${i}" class="animate-pulse text-xs font-semibold text-left">
-    <span class="text-red-500 dark:text-red-400">I</span><span class="text-orange-500 dark:text-orange-400">d</span><span class="text-yellow-500 dark:text-yellow-400">l</span><span class="text-green-500 dark:text-green-400">e</span>
-    <span class="text-slate-500 dark:text-slate-400">${prx.prxIP}:${prx.prxPort}</span>
-</div>`;
-
-        // Logo Bendera di kanan
-        proxyGroupElement += `    <div class="rounded-full overflow-hidden border-4 border-white dark:border-slate-800">`;
-proxyGroupElement += `        <img width="40" src="https://hatscripts.github.io/circle-flags/flags/${prx.country.toLowerCase()}.svg" class="flag-spin" />`; // Tambahkan class="flag-spin"
-proxyGroupElement += `    </div>`;
-        
-        proxyGroupElement += `  </div>`; // Penutup div flexbox
-        
-        // Konten Kartu
-        proxyGroupElement += `  <div class="rounded-lg py-4 px-4 bg-blue-200/20 dark:bg-slate-700/50 flex-grow mt-4">`;
-        proxyGroupElement += `    <h5 class="font-bold text-lg text-slate-800 dark:text-slate-100 mb-1 overflow-x-scroll scrollbar-hide text-nowrap">${prx.org}</h5>`;
-        proxyGroupElement += `    <div class="text-slate-600 dark:text-slate-300 text-sm">`;
-        proxyGroupElement += `      <p>IP: ${prx.prxIP}</p>`;
-        proxyGroupElement += `      <p>Port: ${prx.prxPort}</p>`;
-        proxyGroupElement += `      <div id="container-region-check-${i}">`;
-        proxyGroupElement += `        <input id="config-sample-${i}" class="hidden" type="text" value="${prx.list[0]}">`;
-        proxyGroupElement += `      </div>`;
-        proxyGroupElement += `    </div>`;
-        proxyGroupElement += `  </div>`;
-        
-        // Tombol Konfigurasi
-        proxyGroupElement += `  <div class="grid grid-cols-2 gap-2 mt-4 text-sm">`;
-        
-        const indexName = [
-            `TROJAN TLS`,
-            `VLESS TLS`,
-            `SS TLS`,
-            `TROJAN NTLS`,
-            `VLESS NTLS`,
-            `SS NTLS`,
-        ];
-        
-        for (let x = 0; x < prx.list.length; x++) {
-            const proxy = prx.list[x];
-            // Tombol kuning keemasan di mode terang, tetap biru di mode gelap
-            proxyGroupElement += `<button class="bg-yellow-400 hover:bg-yellow-500 dark:bg-indigo-500 dark:hover:bg-indigo-600 rounded-md p-1.5 w-full text-black dark:text-white font-semibold transition-colors duration-200 text-xs" onclick="copyToClipboard('${proxy}')">${indexName[x]}</button>`;
+        let tableRows = "";
+        for (let i = 0; i < this.proxies.length; i++) {
+            const prx = this.proxies[i];
+            const proxyConfigs = prx.list.join(',');
+            tableRows += `
+                <tr class="dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">${i + 1}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">${prx.prxIP}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 flex items-center">
+                        <img src="https://hatscripts.github.io/circle-flags/flags/${prx.country.toLowerCase()}.svg" width="20" class="inline mr-2 rounded-full"/>
+                        ${prx.country}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">${prx.org}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onclick="copyToClipboard('${proxyConfigs}')" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Copy</button>
+                    </td>
+                </tr>
+            `;
         }
-        
-        proxyGroupElement += `  </div>`;
-        proxyGroupElement += `</div>`; // Penutup Kartu
-    }
-    proxyGroupElement += `</div>`; // Penutup Grid Kontainer
 
-    this.html = this.html.replaceAll("PLACEHOLDER_PROXY_GROUP", `${proxyGroupElement}`);
-}
+        const table = `
+            <div class="overflow-x-auto shadow-md sm:rounded-lg">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">No.</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">IP</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Country</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">ISP</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        ${tableRows}
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        this.html = this.html.replaceAll("PLACEHOLDER_PROXY_GROUP", table);
+    }
 
     buildCountryFlag() {
         const prxBankUrl = this.url.searchParams.get("prx-list");
@@ -1955,6 +1949,92 @@ proxyGroupElement += `    </div>`;
         this.html = this.html.replaceAll('PLACEHOLDER_CONVERTER_URL', CONVERTER_URL);
         this.html = this.html.replaceAll('PLACEHOLDER_DONATE_LINK', DONATE_LINK);
 
+        this.buildDropdowns();
+
         return this.html.replaceAll(/PLACEHOLDER_\w+/gim, "");
+    }
+
+    buildDropdowns() {
+        const selectedProtocol = this.url.searchParams.get('vpn') || 'all';
+        const selectedCountry = this.url.searchParams.get('cc') || 'all';
+        const selectedHost = this.url.searchParams.get('host') || 'all';
+        const selectedPort = this.url.searchParams.get('port') || 'all';
+
+        // Protocol Dropdown
+        const protocols = [{
+            value: 'all',
+            label: 'All Protocols'
+        }, {
+            value: 'vless',
+            label: 'VLESS'
+        }, {
+            value: 'trojan',
+            label: 'TROJAN'
+        }, {
+            value: 'ss',
+            label: 'SHADOWSOCKS'
+        }];
+        let protocolOptions = '';
+        for (const proto of protocols) {
+            protocolOptions += `<option value="${proto.value}" ${selectedProtocol === proto.value ? 'selected' : ''}>${proto.label}</option>`;
+        }
+        this.html = this.html.replace('PLACEHOLDER_PROTOCOL_DROPDOWN', `
+            <div class="relative">
+                <select onchange="applyFilters()" id="protocol-select" class="w-full p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    ${protocolOptions}
+                </select>
+            </div>
+        `);
+
+        // Country Dropdown
+        const countries = new Set(cachedPrxList.map(p => p.country));
+        let countryOptions = '<option value="all" ' + ('all' === selectedCountry.toLowerCase() ? 'selected' : '') + '>All Countries</option>';
+        for (const country of [...countries].sort()) {
+            countryOptions += `<option value="${country}" ${selectedCountry === country ? 'selected' : ''}>${getFlagEmoji(country)} ${country}</option>`;
+        }
+        this.html = this.html.replace('PLACEHOLDER_COUNTRY_DROPDOWN', `
+            <div class="relative">
+                <select onchange="applyFilters()" id="country-select" class="w-full p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    ${countryOptions}
+                </select>
+            </div>
+        `);
+
+        // Host Dropdown
+        const hosts = ['PLACEHOLDER_ROOT_DOMAIN', 'ava.game.naver.com', 'investor.fb.com'];
+        let hostOptions = '';
+        for (const host of hosts) {
+            hostOptions += `<option value="${host}" ${selectedHost === host ? 'selected' : ''}>${host}</option>`;
+        }
+        this.html = this.html.replace('PLACEHOLDER_HOST_DROPDOWN', `
+            <div class="relative">
+                <select onchange="applyFilters()" id="host-select" class="w-full p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    ${hostOptions}
+                </select>
+            </div>
+        `);
+
+        // Port Dropdown
+        const ports = [{
+            value: 'all',
+            label: 'All Ports'
+        }, {
+            value: '443',
+            label: 'TLS (443)'
+        }, {
+            value: '80',
+            label: 'NTLS (80)'
+        }];
+        let portOptions = '';
+        for (const port of ports) {
+            portOptions += `<option value="${port.value}" ${selectedPort === port.value ? 'selected' : ''}>${port.label}</option>`;
+        }
+        this.html = this.html.replace('PLACEHOLDER_PORT_DROPDOWN', `
+            <div class="relative">
+                <select onchange="applyFilters()" id="port-select" class="w-full p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    ${portOptions}
+                </select>
+            </div>
+        `);
     }
 }
