@@ -1330,20 +1330,24 @@ let baseHTML = `
 </div>
 </div>
       <!-- Wildcards -->
-      <div id="wildcards-window" class="fixed hidden z-30 top-0 right-0 w-full h-full flex justify-center items-center">
-    <div class="w-[75%] max-w-md h-auto flex flex-col gap-2 p-4 rounded-lg bg-white bg-opacity-20 backdrop-blur-sm border border-gray-300">
-        <div class="flex w-full h-full gap-2 justify-between">
-            <input id="new-domain-input" type="text" placeholder="Input wildcard" class="w-full h-full px-4 py-2 rounded-md focus:outline-0 bg-gray-700 text-white"/>
-            <button onclick="registerDomain()" class="p-2 rounded-full bg-blue-600 hover:bg-blue-700 flex justify-center items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                    <path fill-rule="evenodd" d="M16.72 7.72a.75.75 0 0 1 1.06 0l3.75 3.75a.75.75 0 0 1 0 1.06l-3.75 3.75a.75.75 0 1 1-1.06-1.06l2.47-2.47H3a.75.75 0 0 1 0-1.5h16.19l-2.47-2.47a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"></path>
-                </svg>
-            </button>
-        </div>
+<div id="wildcards-window" class="fixed hidden z-30 top-0 right-0 w-full h-full flex justify-center items-center">
+    <div class="w-[75%] max-w-md h-auto flex flex-col gap-4 p-4 rounded-xl glass-effect">
 
-        <div id="container-domains" class="w-full h-32 rounded-md flex flex-col gap-1 overflow-y-scroll scrollbar-hide p-2 bg-gray-900"></div>
+        <h2 class="text-xl font-bold text-center text-accent-cyan">Wildcard Manager</h2>
 
-        <button onclick="toggleWildcardsWindow()" class="transform-gpu flex items-center justify-center gap-1 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-sm font-medium shadow-lg hover:shadow-blue-500/30 transition-all duration-200 hover:-translate-y-0.5 p-2">
+        <textarea id="new-domain-input" placeholder="Masukkan satu atau lebih wildcard, satu per baris..." class="w-full h-32 px-4 py-2 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-accent-blue transition-all duration-300" rows="5"></textarea>
+
+        <button onclick="registerDomain()" class="w-full p-3 rounded-lg bg-accent-blue hover:bg-blue-700 text-white font-semibold transition-colors duration-300 flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5">
+                <path d="M3.478 2.404a.75.75 0 0 0-1.06.06l-1.5 1.5a.75.75 0 0 0 1.06 1.06L3 3.707V19.5a.75.75 0 0 0 .75.75h16.5a.75.75 0 0 0 0-1.5H4.5V3.707l.28.281a.75.75 0 0 0 1.06-1.06l-1.5-1.5a.75.75 0 0 0-.862-.06Z" clip-rule="evenodd" />
+                <path d="M21.25 11.25a.75.75 0 0 0-1.5 0v2.879l-6.22-6.22a.75.75 0 0 0-1.06 0l-3.5 3.5a.75.75 0 0 0 1.06 1.06l2.97-2.97 6.22 6.22a.75.75 0 0 0 1.06 0l1.5-1.5a.75.75 0 0 0 0-1.06V11.25Z" clip-rule="evenodd" />
+            </svg>
+            Register Wildcards
+        </button>
+
+        <div id="container-domains" class="w-full h-40 rounded-lg flex flex-col gap-2 overflow-y-scroll scrollbar-hide p-2 bg-gray-900/50 border border-gray-700"></div>
+
+        <button onclick="toggleWildcardsWindow()" class="w-full p-3 rounded-lg bg-red-500 hover:bg-red-600 text-white font-semibold transition-colors duration-300 flex items-center justify-center gap-2">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
         <path fill-rule="evenodd" d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z" clip-rule="evenodd"/>
     </svg>
@@ -1468,15 +1472,21 @@ let baseHTML = `
             const respJson = await res.json();
             respJson.forEach((domain, index) => {
               const domainContainer = document.createElement("div");
-              domainContainer.className = "flex items-center justify-between w-full bg-amber-400 rounded-md p-2";
+              domainContainer.className = "flex items-center justify-between w-full bg-gray-800/50 hover:bg-gray-700/50 transition-colors duration-200 rounded-lg p-2.5";
+
+              const numberText = document.createElement("span");
+              numberText.className = "text-sm font-semibold text-gray-400 w-8 flex-shrink-0";
+              numberText.innerText = (index + 1) + ".";
+              domainContainer.appendChild(numberText);
 
               const domainText = document.createElement("span");
-              domainText.innerText = (index + 1) + ". " + domain.hostname;
+              domainText.className = "flex-grow text-white font-medium truncate pr-2";
+              domainText.innerText = domain.hostname;
               domainContainer.appendChild(domainText);
 
               const deleteButton = document.createElement("button");
-              deleteButton.innerText = "Hapus";
-              deleteButton.className = "bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded text-xs";
+              deleteButton.className = "p-2 rounded-full bg-red-500 hover:bg-red-600 text-white flex-shrink-0 transition-transform transform hover:scale-110";
+              deleteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-4"><path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.443c-.795.077-1.58.22-2.365.468a.75.75 0 1 0 .23 1.482l.149-.046A12.004 12.004 0 0 1 10 6c2.55 0 4.945.64 7.03 1.766l.149.046a.75.75 0 0 0 .23-1.482A41.046 41.046 0 0 0 14 4.193v-.443A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 12.5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" /><path d="M3.39 8.243A41.29 41.29 0 0 0 2 10.25v.25c0 1.48.212 2.912.608 4.283A.75.75 0 0 0 3.39 16h13.22a.75.75 0 0 0 .782-1.217A41.353 41.353 0 0 0 18 10.5v-.25a41.285 41.285 0 0 0-1.39-2.007.75.75 0 1 0-1.22 1.004A39.78 39.78 0 0 1 16.5 10.5v.25c0 .98-.124 1.933-.36 2.833H3.86c-.236-.9-.36-1.853-.36-2.833v-.25c0-.98.124-1.933.36-2.833a.75.75 0 0 0-1.47-.224Z" clip-rule="evenodd" /></svg>`;
               deleteButton.onclick = () => deleteDomain(domain.id, domain.hostname);
               domainContainer.appendChild(deleteButton);
 
@@ -1540,33 +1550,77 @@ let baseHTML = `
         });
       }
 
-      function registerDomain() {
+      async function registerDomain() {
         const domainInputElement = document.getElementById("new-domain-input");
-        const rawDomain = domainInputElement.value.toLowerCase();
-        const domain = domainInputElement.value + "." + rootDomain;
+        const domains = domainInputElement.value.split('\n').filter(d => d.trim() !== '');
 
-        if (!rawDomain.match(/\\w+\\.\\w+$/) || rawDomain.endsWith(rootDomain)) {
-          windowInfoContainer.innerText = "Invalid URL!";
-          return;
+        if (domains.length === 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Input Kosong',
+                text: 'Silakan masukkan setidaknya satu wildcard.',
+                width: '300px'
+            });
+            return;
         }
 
-        windowInfoContainer.innerText = "Pushing request...";
+        let successCount = 0;
+        let failureCount = 0;
+        let failedDomains = [];
 
-        const url = "https://" + rootDomain + "/api/v1/domains/put?domain=" + domain;
-        const res = fetch(url).then((res) => {
-          if (res.status == 200) {
-            windowInfoContainer.innerText = "Done!";
-            domainInputElement.value = "";
-            isDomainListFetched = false;
-            getDomainList();
-          } else {
-            if (res.status == 409) {
-              windowInfoContainer.innerText = "Domain exists!";
-            } else {
-              windowInfoContainer.innerText = "Error " + res.status;
+        Swal.fire({
+            title: 'Mendaftarkan Wildcard...',
+            text: `Memproses ${domains.length} wildcard.`,
+            allowOutsideClick: false,
+            width: '300px',
+            didOpen: () => {
+                Swal.showLoading();
             }
-          }
         });
+
+        for (const rawDomain of domains) {
+            const domain = rawDomain.trim().toLowerCase() + "." + rootDomain;
+
+            if (!rawDomain.match(/^[a-zA-Z0-9.-]+$/) || rawDomain.endsWith(rootDomain)) {
+                failureCount++;
+                failedDomains.push(`${rawDomain} (Format tidak valid)`);
+                continue;
+            }
+
+            const url = `https://${rootDomain}/api/v1/domains/put?domain=${domain}`;
+            try {
+                const res = await fetch(url);
+                if (res.status === 200) {
+                    successCount++;
+                } else {
+                    failureCount++;
+                    const statusText = res.status === 409 ? 'Sudah ada' : `Error ${res.status}`;
+                    failedDomains.push(`${rawDomain} (${statusText})`);
+                }
+            } catch (error) {
+                failureCount++;
+                failedDomains.push(`${rawDomain} (Gagal fetch)`);
+            }
+        }
+
+        Swal.close();
+
+        let resultText = `Berhasil: ${successCount}, Gagal: ${failureCount}.`;
+        if (failureCount > 0) {
+            resultText += '\n\nWildcard yang gagal:\n' + failedDomains.join('\n');
+        }
+
+        Swal.fire({
+            icon: failureCount > 0 ? 'warning' : 'success',
+            title: 'Registrasi Selesai',
+            text: resultText,
+            width: '320px',
+            confirmButtonText: 'OK'
+        });
+
+        domainInputElement.value = "";
+        isDomainListFetched = false;
+        getDomainList();
       }
 
       function copyToClipboard(text) {
