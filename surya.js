@@ -7,6 +7,7 @@ const apiKey = "673fee2d6747b90db9a90e9279195974d01f9"; // Ganti dengan Global A
 const apiEmail = "hxd54n5wmn@zudpck.com"; // Ganti dengan email yang kalian gunakan
 const accountID = "c4682365bae93b9e2a94d6ba827c82a9"; // Ganti dengan Account ID kalian (https://dash.cloudflare.com -> Klik domain yang kalian gunakan)
 const zoneID = "dc7a50828fc5e7cacd27318d4e7ceee5"; // Ganti dengan Zone ID kalian (https://dash.cloudflare.com -> Klik domain yang kalian gunakan)
+const ownerPassword = "geovpn"; // Ganti dengan password yang kalian inginkan
 let isApiReady = false;
 let prxIP = "";
 let cachedPrxList = [];
@@ -302,6 +303,29 @@ export default {
               headers: {
                 ...CORS_HEADER_OPTIONS,
               },
+            });
+          } else if (wildcardApiPath.startsWith("/delete")) {
+            const domainId = url.searchParams.get("id");
+            const password = url.searchParams.get("password");
+
+            if (password !== ownerPassword) {
+              return new Response("Unauthorized", {
+                status: 401,
+                headers: { ...CORS_HEADER_OPTIONS },
+              });
+            }
+
+            if (!domainId) {
+              return new Response("Domain ID is required", {
+                status: 400,
+                headers: { ...CORS_HEADER_OPTIONS },
+              });
+            }
+
+            const result = await cloudflareApi.deleteDomain(domainId);
+            return new Response(result.toString(), {
+              status: result,
+              headers: { ...CORS_HEADER_OPTIONS },
             });
           }
         } else if (apiPath.startsWith("/sub")) {
@@ -1005,7 +1029,9 @@ class CloudflareApi {
     if (res.status == 200) {
       const respJson = await res.json();
 
-      return respJson.result.filter((data) => data.service == serviceName).map((data) => data.hostname);
+      return respJson.result
+        .filter((data) => data.service == serviceName)
+        .map((data) => ({ id: data.id, hostname: data.hostname }));
     }
 
     return [];
@@ -1046,6 +1072,18 @@ class CloudflareApi {
         service: serviceName,
         zone_id: this.zoneID,
       }),
+      headers: {
+        ...this.headers,
+      },
+    });
+
+    return res.status;
+  }
+
+  async deleteDomain(domainId) {
+    const url = `https://api.cloudflare.com/client/v4/accounts/${this.accountID}/workers/domains/${domainId}`;
+    const res = await fetch(url, {
+      method: "DELETE",
       headers: {
         ...this.headers,
       },
@@ -1421,22 +1459,57 @@ let baseHTML = `
         windowInfoContainer.innerText = "Fetching data...";
 
         const url = "https://" + rootDomain + "/api/v1/domains/get";
-        const res = fetch(url).then(async (res) => {
+        fetch(url).then(async (res) => {
           const domainListContainer = document.getElementById("container-domains");
           domainListContainer.innerHTML = "";
 
           if (res.status == 200) {
             windowInfoContainer.innerText = "Done!";
             const respJson = await res.json();
-            for (const domain of respJson) {
-              const domainElement = document.createElement("p");
-              domainElement.classList.add("w-full", "bg-amber-400", "rounded-md");
-              domainElement.innerText = domain;
-              domainListContainer.appendChild(domainElement);
-            }
+            respJson.forEach((domain, index) => {
+              const domainContainer = document.createElement("div");
+              domainContainer.className = "flex items-center justify-between w-full bg-amber-400 rounded-md p-2";
+
+              const domainText = document.createElement("span");
+              domainText.innerText = `${index + 1}. ${domain.hostname}`;
+              domainContainer.appendChild(domainText);
+
+              const deleteButton = document.createElement("button");
+              deleteButton.innerText = "Hapus";
+              deleteButton.className = "bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded text-xs";
+              deleteButton.onclick = () => deleteDomain(domain.id, domain.hostname);
+              domainContainer.appendChild(deleteButton);
+
+              domainListContainer.appendChild(domainContainer);
+            });
           } else {
             windowInfoContainer.innerText = "Failed!";
           }
+        });
+      }
+
+      function deleteDomain(domainId, domainName) {
+        const password = prompt(`Masukkan password untuk menghapus domain: ${domainName}`);
+        if (password === null) {
+          // User cancelled the prompt
+          return;
+        }
+
+        windowInfoContainer.innerText = "Menghapus domain...";
+
+        const url = `https://${rootDomain}/api/v1/domains/delete?id=${domainId}&password=${encodeURIComponent(password)}`;
+        fetch(url, { method: 'DELETE' }).then(res => {
+          if (res.status === 200) {
+            windowInfoContainer.innerText = "Domain berhasil dihapus!";
+            isDomainListFetched = false; // Reset flag to allow refetching
+            getDomainList();
+          } else if (res.status === 401) {
+            windowInfoContainer.innerText = "Password salah!";
+          } else {
+            windowInfoContainer.innerText = `Gagal menghapus domain! Status: ${res.status}`;
+          }
+        }).catch(err => {
+            windowInfoContainer.innerText = `Error: ${err.message}`;
         });
       }
 
