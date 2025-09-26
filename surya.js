@@ -176,9 +176,7 @@ function getAllConfig(request, hostName, prxList, page = 0) {
         }
 
         // Build pagination
-        const showingFrom = totalProxies > 0 ? startIndex + 1 : 0;
-        const showingTo = Math.min(startIndex + PRX_PER_PAGE, totalProxies);
-        document.setPaginationInfo(`Showing ${showingFrom} to ${showingTo} of ${totalProxies} Proxies`);
+        document.setPaginationInfo(`Page ${page + 1} of ${totalPages} (${totalProxies} Proxies Total)`);
 
         // Prev button
         document.addPageButton("Prev", `/sub/${page > 0 ? page - 1 : 0}`, page === 0);
@@ -1206,74 +1204,44 @@ let baseHTML = `
         </div>
     </div>
 
-    <!-- Select Country -->
-    <div>
-      <div
-        class="h-full fixed top-0 w-14 bg-gray-100 dark:bg-gray-900 border-r-2 border-gray-300 dark:border-gray-700 z-20 overflow-y-scroll scrollbar-hide"
-      >
-        <div class="text-2xl flex flex-col items-center h-full gap-2 py-2">
-          PLACEHOLDER_BENDERA_NEGARA
+    <div class="flex flex-col items-center min-h-screen relative z-10 p-4">
+
+  <div id="container-title" class="w-full max-w-7xl text-center">
+    <h1 class="text-3xl font-bold text-white py-4">Free Vless Trojan SS</h1>
+  </div>
+
+<div class="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+    <div class="glass-effect rounded-xl p-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label for="protocol" class="block text-sm font-medium text-gray-300 mb-1">Protocol</label>
+                <select id="protocol" class="w-full p-2 rounded-lg bg-gray-800 text-white border-2 border-gray-700 focus:outline-none focus:ring-2 focus:ring-accent-blue">
+                    <option>VLESS</option>
+                </select>
+            </div>
+            <div>
+                <label for="country" class="block text-sm font-medium text-gray-300 mb-1">Country</label>
+                <select id="country" class="w-full p-2 rounded-lg bg-gray-800 text-white border-2 border-gray-700 focus:outline-none focus:ring-2 focus:ring-accent-blue">
+                    <option>All</option>
+                </select>
+            </div>
+            <div>
+                <label for="wildcard" class="block text-sm font-medium text-gray-300 mb-1">Wildcard/Host</label>
+                <select id="wildcard" class="w-full p-2 rounded-lg bg-gray-800 text-white border-2 border-gray-700 focus:outline-none focus:ring-2 focus:ring-accent-blue">
+                    <option>Defa</option>
+                </select>
+            </div>
+            <div>
+                <label for="security" class="block text-sm font-medium text-gray-300 mb-1">Security/Port</label>
+                <select id="security" class="w-full p-2 rounded-lg bg-gray-800 text-white border-2 border-gray-700 focus:outline-none focus:ring-2 focus:ring-accent-blue">
+                    <option>TLS (443)</option>
+                </select>
+            </div>
         </div>
-      </div>
     </div>
-    
-    <div class="ml-16 flex flex-col items-center min-h-screen relative z-10 p-4">
-  <div class="glass-effect-light dark:glass-effect w-full mb-6 rounded-xl p-4 shadow-lg">
-    <div class="flex flex-wrap items-center justify-center gap-3 text-sm font-semibold">
-
-      <p id="container-info-ip" class="flex items-center gap-1 text-blue-500 dark:text-blue-300">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M5.5 13a4.5 4.5 0 011.692-3.377l1.72-1.725A4.5 4.5 0 0113 5.5V6a.5.5 0 001 0V5.5A4.5 4.5 0 009.377 2.308L7.653 4.032A4.5 4.5 0 005 8.5v.5a.5.5 0 001 0V8.5A3.5 3.5 0 017.377 5.79l.995.996a.5.5 0 00.707-.707l-.996-.995A4.5 4.5 0 008.5 2.5a.5.5 0 000-1z" />
-        </svg>
-        IP: <span class="font-bold text-slate-800 dark:text-white">127.0.0.1</span>
-      </p>
-      <p id="container-info-country" class="flex items-center gap-1 text-green-500 dark:text-green-300">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 3.126A8.024 8.024 0 0110 3a8 8 0 01.445.126l.01.004.013.006.015.008A5.96 5.96 0 0014 9a6 6 0 01-5.995 5.986L9 15a6 6 0 01-5.986-5.995l-.004-.01-.006-.013A6.024 6.024 0 013 10a8.024 8.024 0 01.126-.445l.004-.01.006-.013.008-.015A5.96 5.96 0 009 6a6 6 0 015.995 5.986L15 12a6 6 0 01-5.986 5.995l-.01-.004-.013-.006-.015-.008A6.024 6.024 0 019 18z" clip-rule="evenodd" />
-        </svg>
-        Country: <span class="font-bold text-slate-800 dark:text-white">Singapore</span>
-      </p>
-      <p id="container-info-isp" class="flex items-center gap-1 text-indigo-500 dark:text-indigo-300">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M10 3a7 7 0 00-7 7h1.5a5.5 5.5 0 1111 0h1.5a7 7 0 00-7-7z" />
-        </svg>
-        ISP: <span class="font-bold text-slate-800 dark:text-white">Localhost</span>
-      </p>
-
-      <p class="flex items-center gap-1 text-purple-500 dark:text-purple-300">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h14a1 1 0 001-1V4a1 1 0 00-1-1H3zm13 2H4v10h12V5z" />
-        </svg>
-        <span class="text-gray-600 dark:text-gray-300">Total Proxy: <strong id="total-proxy-value" class="font-semibold">0</strong></span>
-      </p>
-      <p class="flex items-center gap-1 text-orange-500 dark:text-orange-300">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M3 6a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V6zm2 2a1 1 0 00-1 1v4a1 1 0 001 1h10a1 1 0 001-1V9a1 1 0 00-1-1H5zm1 2h2v2H6v-2zm4 0h2v2h-2v-2z" clip-rule="evenodd" />
-        </svg>
-        <span class="text-gray-600 dark:text-gray-300">Page: <strong id="page-info-value" class="font-semibold">0/0</strong></span>
-      </p>
-      <p class="flex items-center gap-1 text-teal-500 dark:text-teal-300">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-        </svg>
-        Time: <strong id="time-info-value" class="font-semibold text-slate-800 dark:text-white">00:00:00</strong>
-      </p>
-    </div>
-    <div class="mt-4 flex gap-2">
-        <input type="text" id="search-bar" placeholder="Search by IP, Port, ISP, or Country..." class="w-full px-4 py-1 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <button onclick="searchProxy()" class="px-4 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Search</button>
-    </div>
-  </div>
-
-  <div id="container-title" class="sticky top-0 z-10 w-full max-w-7xl rounded-xl py-6 text-center shadow-lg backdrop-blur-md transition-all duration-300 ease-in-out">
-  <div class="relative overflow-hidden">
-    <h1 id="runningTitle" class="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 animate-pulse">
-      PLACEHOLDER_JUDUL
-    </h1>
-  </div>
 </div>
 
-        <div class="flex flex-col md:flex-row gap-4 pt-8 w-full max-w-7xl justify-center">
+        <div class="flex flex-col md:flex-row gap-4 pt-2 w-full max-w-7xl justify-center">
     PLACEHOLDER_PROXY_GROUP
 </div>
 
@@ -1809,7 +1777,7 @@ class Document {
     }
 
 setTitle(title) {
-    this.html = this.html.replaceAll("PLACEHOLDER_JUDUL", title.replace("text-blue-500", "text-indigo-500"));
+    // Judul sekarang statis, jadi fungsi ini tidak melakukan apa-apa.
   }
 
   addInfo(text) {
@@ -1826,89 +1794,52 @@ setTitle(title) {
 
     buildProxyGroup() {
     let proxyGroupElement = "";
-    proxyGroupElement += `<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">`;
-    
+    proxyGroupElement += `<div class="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">`;
+    proxyGroupElement += `<div class="glass-effect rounded-lg shadow-lg">`;
+    proxyGroupElement += `<div class="px-6 py-3 border-b border-gray-700">`;
+    proxyGroupElement += `<div class="grid grid-cols-12 gap-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">`;
+    proxyGroupElement += `<div class="col-span-4">Country</div>`;
+    proxyGroupElement += `<div class="col-span-5">ISP</div>`;
+    proxyGroupElement += `<div class="col-span-2">Address</div>`;
+    proxyGroupElement += `<div class="col-span-1 text-right"></div>`;
+    proxyGroupElement += `</div>`;
+    proxyGroupElement += `</div>`;
+    proxyGroupElement += `<div class="divide-y divide-gray-700">`;
+
     for (let i = 0; i < this.proxies.length; i++) {
         const prx = this.proxies[i];
 
-        // Assign proxies
-        proxyGroupElement += `<div class="lozad scale-95 mb-4 bg-blue-300/30 dark:bg-slate-800 transition-all duration-300 rounded-lg p-6 flex flex-col shadow-lg border border-white/20 hover:scale-105 backdrop-blur-md">`;
+        proxyGroupElement += `<div class="px-6 py-4 grid grid-cols-12 gap-4 items-center hover:bg-gray-700/50 transition-colors duration-200">`;
         
-        // Header Kartu: Ping dan Bendera
-        proxyGroupElement += `  <div class="flex justify-between items-center">`;
+        // Country and Flag
+        proxyGroupElement += `<div class="col-span-4 flex items-center">`;
+        proxyGroupElement += `<img width="24" src="https://hatscripts.github.io/circle-flags/flags/${prx.country.toLowerCase()}.svg" class="mr-3 rounded-full" />`;
+        proxyGroupElement += `<span class="text-sm text-white">${prx.country}</span>`;
+        proxyGroupElement += `</div>`;
         
-        // Elemen Ping di kiri
-        proxyGroupElement += `    <div id="ping-${i}" class="animate-pulse text-xs font-semibold text-left">
-    <span class="text-red-500 dark:text-red-400">I</span><span class="text-orange-500 dark:text-orange-400">d</span><span class="text-yellow-500 dark:text-yellow-400">l</span><span class="text-green-500 dark:text-green-400">e</span>
-    <span class="text-slate-500 dark:text-slate-400">${prx.prxIP}:${prx.prxPort}</span>
-</div>`;
+        // ISP
+        proxyGroupElement += `<div class="col-span-5 text-sm text-gray-300 truncate">${prx.org}</div>`;
+        
+        // Address (IP) - This is a placeholder, actual address is not in the provided data structure
+        proxyGroupElement += `<div class="col-span-2 text-sm text-gray-300"></div>`;
 
-        // Logo Bendera di kanan
-        proxyGroupElement += `    <div class="rounded-full overflow-hidden border-4 border-white dark:border-slate-800">`;
-proxyGroupElement += `        <img width="40" src="https://hatscripts.github.io/circle-flags/flags/${prx.country.toLowerCase()}.svg" class="flag-spin" />`; // Tambahkan class="flag-spin"
-proxyGroupElement += `    </div>`;
+        // Checkbox
+        proxyGroupElement += `<div class="col-span-1 flex justify-end">`;
+        proxyGroupElement += `<input type="checkbox" class="form-checkbox h-5 w-5 bg-gray-900 border-gray-600 text-accent-blue focus:ring-accent-blue rounded cursor-pointer">`;
+        proxyGroupElement += `</div>`;
         
-        proxyGroupElement += `  </div>`; // Penutup div flexbox
-        
-        // Konten Kartu
-        proxyGroupElement += `  <div class="rounded-lg py-4 px-4 bg-blue-200/20 dark:bg-slate-700/50 flex-grow mt-4">`;
-        proxyGroupElement += `    <h5 class="font-bold text-lg text-slate-800 dark:text-slate-100 mb-1 overflow-x-scroll scrollbar-hide text-nowrap">${prx.org}</h5>`;
-        proxyGroupElement += `    <div class="text-slate-600 dark:text-slate-300 text-sm">`;
-        proxyGroupElement += `      <p>IP: ${prx.prxIP}</p>`;
-        proxyGroupElement += `      <p>Port: ${prx.prxPort}</p>`;
-        proxyGroupElement += `      <div id="container-region-check-${i}">`;
-        proxyGroupElement += `        <input id="config-sample-${i}" class="hidden" type="text" value="${prx.list[0]}">`;
-        proxyGroupElement += `      </div>`;
-        proxyGroupElement += `    </div>`;
-        proxyGroupElement += `  </div>`;
-        
-        // Tombol Konfigurasi
-        proxyGroupElement += `  <div class="grid grid-cols-2 gap-2 mt-4 text-sm">`;
-        
-        const indexName = [
-            `TROJAN TLS`,
-            `VLESS TLS`,
-            `SS TLS`,
-            `TROJAN NTLS`,
-            `VLESS NTLS`,
-            `SS NTLS`,
-        ];
-        
-        for (let x = 0; x < prx.list.length; x++) {
-            const proxy = prx.list[x];
-            // Tombol kuning keemasan di mode terang, tetap biru di mode gelap
-            proxyGroupElement += `<button class="bg-yellow-400 hover:bg-yellow-500 dark:bg-indigo-500 dark:hover:bg-indigo-600 rounded-md p-1.5 w-full text-black dark:text-white font-semibold transition-colors duration-200 text-xs" onclick="copyToClipboard('${proxy}')">${indexName[x]}</button>`;
-        }
-        
-        proxyGroupElement += `  </div>`;
-        proxyGroupElement += `</div>`; // Penutup Kartu
+        proxyGroupElement += `</div>`;
     }
-    proxyGroupElement += `</div>`; // Penutup Grid Kontainer
+
+    proxyGroupElement += `</div>`; // Closing divide-y
+    proxyGroupElement += `</div>`; // Closing glass-effect
+    proxyGroupElement += `</div>`; // Closing container
 
     this.html = this.html.replaceAll("PLACEHOLDER_PROXY_GROUP", `${proxyGroupElement}`);
 }
 
     buildCountryFlag() {
-        const prxBankUrl = this.url.searchParams.get("prx-list");
-        const selectedCC = this.url.searchParams.get("cc");
-        const flagList = [];
-        for (const proxy of cachedPrxList) {
-            flagList.push(proxy.country);
-        }
-
-        let flagElement = "";
-        for (const flag of new Set(flagList)) {
-            const isSelected = selectedCC === flag;
-            // Apply different classes based on selection state
-            const linkClasses = isSelected 
-                ? 'border-2 border-blue-400 rounded-lg p-0.5' // Classes for selected flag
-                : 'py-1';                                     // Classes for non-selected flag
-
-            flagElement += `<a href="/sub?cc=${flag}${prxBankUrl ? "&prx-list=" + prxBankUrl : ""
-                }" class="flex items-center justify-center ${linkClasses}" ><img width=30 src="https://hatscripts.github.io/circle-flags/flags/${flag.toLowerCase()}.svg" /></a>`;
-        }
-
-        this.html = this.html.replaceAll("PLACEHOLDER_BENDERA_NEGARA", flagElement);
+        // This function is no longer needed as the country flag bar has been removed.
     }
 
     addPageButton(text, link, isDisabled) {
@@ -1926,7 +1857,6 @@ proxyGroupElement += `    </div>`;
 
     build() {
         this.buildProxyGroup();
-        this.buildCountryFlag();
 
         this.html = this.html.replaceAll("PLACEHOLDER_API_READY", isApiReady ? "block" : "hidden");
 
