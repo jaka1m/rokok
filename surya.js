@@ -118,7 +118,7 @@ function getAllConfig(request, hostName, prxList, page = 0, selectedProtocol = n
         const uuid = crypto.randomUUID();
 
         // Build URI
-        const uri = new URL(`${atob(horse)}://${hostName}`);
+        const uri = new URL(`${atob(horse)}://${APP_DOMAIN}`);
         uri.searchParams.set("encryption", "none");
         uri.searchParams.set("type", "ws");
         uri.searchParams.set("host", hostName);
@@ -235,7 +235,7 @@ export default {
         const pageIndex = parseInt(page ? page[1] : "0");
 
         // Queries
-        const hostname = url.searchParams.get("host") || "ava.game.naver.com";
+        const hostname = url.searchParams.get("host") || APP_DOMAIN;
         const countrySelect = url.searchParams.get("cc")?.toUpperCase();
         const selectedProtocol = url.searchParams.get("vpn");
         const selectedPort = url.searchParams.get("port");
@@ -1959,7 +1959,7 @@ setTitle(title) {
     buildDropdowns() {
         const selectedProtocol = this.url.searchParams.get('vpn') || 'all';
         const selectedCountry = this.url.searchParams.get('cc') || 'all';
-        const selectedHost = this.url.searchParams.get('host') || 'all';
+        const selectedHost = this.url.searchParams.get('host') || APP_DOMAIN;
         const selectedPort = this.url.searchParams.get('port') || 'all';
 
         // Protocol Dropdown
@@ -1982,6 +1982,7 @@ setTitle(title) {
         }
         this.html = this.html.replace('PLACEHOLDER_PROTOCOL_DROPDOWN', `
             <div class="relative">
+                <label for="protocol-select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Protocol</label>
                 <select onchange="applyFilters()" id="protocol-select" class="w-full p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     ${protocolOptions}
                 </select>
@@ -1996,6 +1997,7 @@ setTitle(title) {
         }
         this.html = this.html.replace('PLACEHOLDER_COUNTRY_DROPDOWN', `
             <div class="relative">
+                <label for="country-select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Country</label>
                 <select onchange="applyFilters()" id="country-select" class="w-full p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     ${countryOptions}
                 </select>
@@ -2003,13 +2005,14 @@ setTitle(title) {
         `);
 
         // Host Dropdown
-        const hosts = ['PLACEHOLDER_ROOT_DOMAIN', 'ava.game.naver.com', 'investor.fb.com'];
+        const hosts = [APP_DOMAIN, 'ava.game.naver.com', 'investor.fb.com'];
         let hostOptions = '';
         for (const host of hosts) {
             hostOptions += `<option value="${host}" ${selectedHost === host ? 'selected' : ''}>${host}</option>`;
         }
         this.html = this.html.replace('PLACEHOLDER_HOST_DROPDOWN', `
             <div class="relative">
+                <label for="host-select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Wildcard/Host</label>
                 <select onchange="applyFilters()" id="host-select" class="w-full p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     ${hostOptions}
                 </select>
@@ -2033,6 +2036,7 @@ setTitle(title) {
         }
         this.html = this.html.replace('PLACEHOLDER_PORT_DROPDOWN', `
             <div class="relative">
+                <label for="port-select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Security/Port</label>
                 <select onchange="applyFilters()" id="port-select" class="w-full p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     ${portOptions}
                 </select>
