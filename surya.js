@@ -1184,15 +1184,6 @@ let baseHTML = `
 <body
     class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-white bg-fixed transition-colors duration-300"
   >
-    <div
-      id="loading-screen"
-      class="fixed inset-0 z-50 flex justify-center items-center bg-gray-900 bg-opacity-80 transition-opacity duration-500"
-    >
-      <div
-        class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-400"
-      ></div>
-    </div>
-
     <div id="notification-badge" class="fixed z-50 opacity-0 transition-opacity ease-in-out duration-300 mt-9 mr-6 right-0 p-4 max-w-sm rounded-xl flex items-center gap-x-4 shadow-lg glass-effect dark:glass-effect-light">
         <div class="shrink-0">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6 text-accent-cyan">
@@ -1423,22 +1414,6 @@ let baseHTML = `
 
 
      <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const loadingScreen = document.getElementById('loading-screen');
-    if (loadingScreen) {
-      // Tunggu 5 detik sebelum memulai transisi
-      setTimeout(() => {
-        // Atur opacity menjadi 0 untuk memulai efek fade out
-        loadingScreen.style.opacity = '0';
-        
-        // Setelah efek fade out selesai (500ms), sembunyikan elemen
-        setTimeout(() => {
-          loadingScreen.style.display = 'none';
-        }, 500); // Durasi ini harus sama dengan durasi transisi di CSS (duration-500)
-      }, 1000); // <-- Ini adalah jeda 5 detik
-    }
-  });
-    
       // Shared
       const rootDomain = "PLACEHOLDER_ROOT_DOMAIN";
       const notification = document.getElementById("notification-badge");
