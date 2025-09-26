@@ -117,11 +117,16 @@ function getAllConfig(request, hostName, prxList, page = 0, selectedProtocol = n
     try {
         const uuid = crypto.randomUUID();
 
+        // If a custom host is selected, the host/SNI will be a combination.
+        // Otherwise, it's just the application's domain.
+        const effectiveHost = hostName === APP_DOMAIN ? APP_DOMAIN : `${hostName}.${APP_DOMAIN}`;
+
         // Build URI
-        const uri = new URL(`${atob(horse)}://${APP_DOMAIN}`);
+        // The address is the selected host (e.g., ava.game.naver.com or the app domain)
+        const uri = new URL(`${atob(horse)}://${hostName}`);
         uri.searchParams.set("encryption", "none");
         uri.searchParams.set("type", "ws");
-        uri.searchParams.set("host", hostName);
+        uri.searchParams.set("host", effectiveHost);
 
         // Build HTML
         const document = new Document(request);
@@ -152,7 +157,7 @@ function getAllConfig(request, hostName, prxList, page = 0, selectedProtocol = n
                             "plugin",
                             `${atob(v2)}-plugin${
                                 port == 80 ? "" : ";tls"
-                            };mux=0;mode=websocket;path=/Free-VPN-Geo-Project/${prxIP}-${prxPort};host=${hostName}`
+                            };mux=0;mode=websocket;path=/Free-VPN-Geo-Project/${prxIP}-${prxPort};host=${effectiveHost}`
                         );
                     } else {
                         uri.username = uuid;
@@ -161,7 +166,7 @@ function getAllConfig(request, hostName, prxList, page = 0, selectedProtocol = n
 
                     uri.protocol = protocol;
                     uri.searchParams.set("security", port == 443 ? "tls" : "none");
-                    uri.searchParams.set("sni", port == 80 && protocol == atob(flash) ? "" : hostName);
+                    uri.searchParams.set("sni", port == 80 && protocol == atob(flash) ? "" : effectiveHost);
 
                     // Build VPN URI
                     prxs.push(uri.toString());
@@ -340,6 +345,7 @@ export default {
           const filterLimit = parseInt(url.searchParams.get("limit")) || 10;
           const filterFormat = url.searchParams.get("format") || "raw";
           const fillerDomain = url.searchParams.get("domain") || APP_DOMAIN;
+          const effectiveHost = fillerDomain === APP_DOMAIN ? APP_DOMAIN : `${fillerDomain}.${APP_DOMAIN}`;
 
           const prxBankUrl = url.searchParams.get("prx-list") || env.PRX_BANK_URL;
           const prxList = await getPrxList(prxBankUrl)
@@ -362,7 +368,7 @@ export default {
             const uri = new URL(`${atob(horse)}://${fillerDomain}`);
             uri.searchParams.set("encryption", "none");
             uri.searchParams.set("type", "ws");
-            uri.searchParams.set("host", APP_DOMAIN);
+            uri.searchParams.set("host", effectiveHost);
 
             for (const port of filterPort) {
               for (const protocol of filterVPN) {
@@ -376,14 +382,14 @@ export default {
                     "plugin",
                     `${atob(v2)}-plugin${port == 80 ? "" : ";tls"};mux=0;mode=websocket;path=/Free-VPN-Geo-Project/${prxIP}-${
                       prx.prxPort
-                    };host=${APP_DOMAIN}`
+                    };host=${effectiveHost}`
                   );
                 } else {
                   uri.username = uuid;
                 }
 
                 uri.searchParams.set("security", port == 443 ? "tls" : "none");
-                uri.searchParams.set("sni", port == 80 && protocol == atob(flash) ? "" : APP_DOMAIN);
+                uri.searchParams.set("sni", port == 80 && protocol == atob(flash) ? "" : effectiveHost);
                 uri.searchParams.set("path", `/Free-VPN-Geo-Project/${prxIP}-${prx.prxPort}`);
 
                 uri.hash = `${result.length + 1} ${getFlagEmoji(prx.country)} ${prx.org} WS ${
