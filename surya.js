@@ -1333,7 +1333,7 @@ let baseHTML = `
       <div id="wildcards-window" class="fixed hidden z-30 top-0 right-0 w-full h-full flex justify-center items-center">
     <div class="w-[75%] max-w-md h-auto flex flex-col gap-2 p-4 rounded-lg bg-white bg-opacity-20 backdrop-blur-sm border border-gray-300">
         <div class="flex w-full h-full gap-2 justify-between">
-            <input id="new-domain-input" type="text" placeholder="Input wildcard" class="w-full h-full px-4 py-2 rounded-md focus:outline-0 bg-gray-700 text-white"/>
+            <textarea id="new-domain-input" placeholder="Input wildcards, one per line..." class="w-full h-32 px-4 py-2 rounded-md focus:outline-0 bg-gray-700 text-white" style="resize: none;"></textarea>
             <button onclick="registerDomain()" class="p-2 rounded-full bg-blue-600 hover:bg-blue-700 flex justify-center items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
                     <path fill-rule="evenodd" d="M16.72 7.72a.75.75 0 0 1 1.06 0l3.75 3.75a.75.75 0 0 1 0 1.06l-3.75 3.75a.75.75 0 1 1-1.06-1.06l2.47-2.47H3a.75.75 0 0 1 0-1.5h16.19l-2.47-2.47a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"></path>
@@ -1468,15 +1468,21 @@ let baseHTML = `
             const respJson = await res.json();
             respJson.forEach((domain, index) => {
               const domainContainer = document.createElement("div");
-              domainContainer.className = "flex items-center justify-between w-full bg-amber-400 rounded-md p-2";
+              domainContainer.className = "flex items-center justify-between w-full bg-gray-700 rounded-md p-2 gap-x-3";
+
+              const numText = document.createElement("span");
+              numText.className = "text-sm font-medium text-gray-300";
+              numText.innerText = `${index + 1}.`;
+              domainContainer.appendChild(numText);
 
               const domainText = document.createElement("span");
-              domainText.innerText = (index + 1) + ". " + domain.hostname;
+              domainText.className = "flex-grow text-white truncate";
+              domainText.innerText = domain.hostname;
               domainContainer.appendChild(domainText);
 
               const deleteButton = document.createElement("button");
               deleteButton.innerText = "Hapus";
-              deleteButton.className = "bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded text-xs";
+              deleteButton.className = "bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded text-xs flex-shrink-0";
               deleteButton.onclick = () => deleteDomain(domain.id, domain.hostname);
               domainContainer.appendChild(deleteButton);
 
@@ -1540,33 +1546,81 @@ let baseHTML = `
         });
       }
 
-      function registerDomain() {
+      async function registerDomain() {
         const domainInputElement = document.getElementById("new-domain-input");
-        const rawDomain = domainInputElement.value.toLowerCase();
-        const domain = domainInputElement.value + "." + rootDomain;
+        const domains = domainInputElement.value.toLowerCase().split('\n').filter(d => d.trim() !== '');
 
-        if (!rawDomain.match(/\\w+\\.\\w+$/) || rawDomain.endsWith(rootDomain)) {
-          windowInfoContainer.innerText = "Invalid URL!";
+        if (domains.length === 0) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Inputan tidak boleh kosong!',
+            width: '300px'
+          });
           return;
         }
 
-        windowInfoContainer.innerText = "Pushing request...";
+        let results = {
+          successful: [],
+          failed: [],
+          existed: [],
+          invalid: []
+        };
 
-        const url = "https://" + rootDomain + "/api/v1/domains/put?domain=" + domain;
-        const res = fetch(url).then((res) => {
-          if (res.status == 200) {
-            windowInfoContainer.innerText = "Done!";
-            domainInputElement.value = "";
-            isDomainListFetched = false;
-            getDomainList();
-          } else {
-            if (res.status == 409) {
-              windowInfoContainer.innerText = "Domain exists!";
-            } else {
-              windowInfoContainer.innerText = "Error " + res.status;
-            }
+        Swal.fire({
+          title: 'Mendaftarkan Wildcard...',
+          text: `Memproses ${domains.length} domain.`,
+          allowOutsideClick: false,
+          width: '300px',
+          didOpen: () => {
+            Swal.showLoading();
           }
         });
+
+        for (const rawDomain of domains) {
+          const domain = rawDomain.trim() + "." + rootDomain;
+
+          if (!rawDomain.match(/^[a-zA-Z0-9.-]+$/) || rawDomain.endsWith(rootDomain)) {
+            results.invalid.push(rawDomain);
+            continue;
+          }
+
+          const url = `https://${rootDomain}/api/v1/domains/put?domain=${domain}`;
+          try {
+            const res = await fetch(url);
+            if (res.status === 200) {
+              results.successful.push(rawDomain);
+            } else if (res.status === 409) {
+              results.existed.push(rawDomain);
+            } else {
+              results.failed.push(`${rawDomain} (Error: ${res.status})`);
+            }
+          } catch (e) {
+            results.failed.push(`${rawDomain} (Error: Network issue)`);
+          }
+        }
+
+        Swal.close();
+
+        let resultText = `
+          <div style="text-align: left;">
+            <p><strong>Berhasil:</strong> ${results.successful.length}</p>
+            <p><strong>Gagal:</strong> ${results.failed.length}</p>
+            <p><strong>Sudah Ada:</strong> ${results.existed.length}</p>
+            <p><strong>Tidak Valid:</strong> ${results.invalid.length}</p>
+          </div>
+        `;
+
+        Swal.fire({
+          title: 'Pendaftaran Selesai',
+          html: resultText,
+          icon: 'info',
+          width: '300px'
+        });
+
+        domainInputElement.value = "";
+        isDomainListFetched = false;
+        getDomainList();
       }
 
       function copyToClipboard(text) {
