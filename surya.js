@@ -644,7 +644,7 @@ async function handleUDPOutbound(targetAddress, targetPort, udpChunk, webSocket,
         async write(chunk) {
           if (webSocket.readyState === WS_READY_STATE_OPEN) {
             if (protocolHeader) {
-              webSocket.send(await new Blob([protocolHeader, chunk]).arrayBuffer());
+              webSocket.send(await new Blob([header, chunk]).arrayBuffer());
               protocolHeader = null;
             } else {
               webSocket.send(chunk);
@@ -1308,7 +1308,7 @@ let baseHTML = `
         SFA
     </button>
     <button onclick="copyToClipboardAsTarget('bfr')" class="p-1.5 rounded-md bg-sky-500 hover:bg-sky-600 text-xs font-semibold text-white flex flex-col justify-center items-center transition-transform transform hover:scale-105 shadow-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" class="size-5 mb-0.5"><path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm288 32c0-11.5 6.1-22 16-27.6l80-45.7c10.8-6.2 24.3-3.4 31.5 6.9s3.2 23.4-7.5 29.7l-80 45.7c-2.4 1.4-5 2.2-7.8 2.2s-5.4-.8-7.8-2.2l-128-73.1c-10.8-6.2-13.6-19.7-7.5-30.5s19.7-13.6 30.5-7.5L256 226.4V64c0-17.7 14.3-32 32-32s32 14.3 32 32v240c0 17.7-14.3 32-32 32s-32-14.3-32-32v-44.5l-80 45.7c-10.8 6.2-13.6 19.7-7.5 30.5s19.7 13.6 30.5 7.5L256 280.9V448c0 17.7-14.3 32-32 32s-32-14.3-32-32V208c0-11.5-6.1-22-16-27.6L96 134.7c-10.8-6.2-24.3-3.4-31.5 6.9s-3.2 23.4 7.5 29.7l80 45.7c2.4 1.4 5 2.2 7.8 2.2s5.4-.8 7.8-2.2l128-73.1c10.8-6.2 13.6-19.7 7.5-30.5s-19.7-13.6-30.5-7.5L256 167.1V288z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" class="size-5 mb-0.5"><path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm288 32c0-11.5 6.1-22 16-27.6l80-45.7c10.8-6.2 24.3-3.4 31.5 6.9s3.2 23.4-7.5 29.7l-80 45.7c-2.4 1.4-5 2.2-7.8 2.2s-5.4-.8-7.8-2.2l-128-73.1c-10.8-6.2-13.6-19.7-7.5-30.5s19.7-13.6 30.5-7.5L256 226.4V64c0-17.7 14.3-32 32-32s32 14.3 32 32v240c0 17.7-14.3 32-32 32s-32-14.3-32-32v-44.5l-80 45.7c-10.8 6.2-13.6-19.7-7.5 30.5s19.7 13.6 30.5 7.5L256 280.9V448c0 17.7-14.3 32-32 32s-32-14.3-32-32V208c0-11.5-6.1-22-16-27.6L96 134.7c-10.8-6.2-24.3-3.4-31.5 6.9s-3.2 23.4 7.5 29.7l80 45.7c2.4 1.4 5 2.2 7.8 2.2s5.4-.8 7.8-2.2l128-73.1c10.8-6.2 13.6-19.7 7.5-30.5s-19.7-13.6-30.5-7.5L256 167.1V288z"/></svg>
         BFR
     </button>
     <button onclick="copyToClipboardAsRaw()" class="p-1.5 rounded-md bg-gray-400 hover:bg-gray-500 text-xs font-semibold text-white flex flex-col justify-center items-center transition-transform transform hover:scale-105 shadow-sm">
@@ -1332,7 +1332,7 @@ let baseHTML = `
       <!-- Wildcards -->
       <div id="wildcards-window" class="fixed hidden z-30 top-0 right-0 w-full h-full flex justify-center items-center">
     <div class="w-[75%] max-w-md h-auto flex flex-col gap-2 p-4 rounded-lg bg-white bg-opacity-20 backdrop-blur-sm border border-gray-300">
-        <div class="flex w-full h-full gap-2 justify-between">
+        <div class="flex w-full gap-2 justify-between">
             <textarea id="new-domain-input" placeholder="Input wildcards, one per line..." class="w-full h-32 px-4 py-2 rounded-md focus:outline-0 bg-gray-700 text-white" style="resize: none;"></textarea>
             <button onclick="registerDomain()" class="p-2 rounded-full bg-blue-600 hover:bg-blue-700 flex justify-center items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
@@ -1471,7 +1471,7 @@ let baseHTML = `
               domainContainer.className = "flex items-center justify-between w-full bg-gray-700 rounded-md p-2 gap-x-3";
 
               const numText = document.createElement("span");
-              numText.className = "text-sm font-medium text-gray-300";
+              numText.className = "text-sm font-medium text-gray-300 w-8 text-right";
               numText.innerText = (index + 1) + ".";
               domainContainer.appendChild(numText);
 
@@ -1850,25 +1850,25 @@ class Document {
     setTotalProxy(total) {
         this.html = this.html.replace(
             '<strong id="total-proxy-value" class="font-semibold">0</strong>',
-            `<strong id="total-proxy-value" class="font-semibold">${total}</strong>`
+            '<strong id="total-proxy-value" class="font-semibold">' + total + '</strong>'
         );
     }
     
     setPage(current, total) {
         this.html = this.html.replace(
             '<strong id="page-info-value" class="font-semibold">0/0</strong>',
-            `<strong id="page-info-value" class="font-semibold">${current}/${total}</strong>`
+            '<strong id="page-info-value" class="font-semibold">' + current + '/' + total + '</strong>'
         );
     }
 
-setTitle(title) {
-    this.html = this.html.replaceAll("PLACEHOLDER_JUDUL", title.replace("text-blue-500", "text-indigo-500"));
-  }
+    setTitle(title) {
+        this.html = this.html.replaceAll("PLACEHOLDER_JUDUL", title.replace("text-blue-500", "text-indigo-500"));
+    }
 
-  addInfo(text) {
-    text = `<span>${text}</span>`;
-    this.html = this.html.replaceAll("PLACEHOLDER_INFO", `${text}\nPLACEHOLDER_INFO`);
-  }
+    addInfo(text) {
+        text = "<span>" + text + "</span>";
+        this.html = this.html.replaceAll("PLACEHOLDER_INFO", text + "\nPLACEHOLDER_INFO");
+    }
 
     registerProxies(data, proxies) {
         this.proxies.push({
@@ -1878,68 +1878,51 @@ setTitle(title) {
     }
 
     buildProxyGroup() {
-    let proxyGroupElement = "";
-    proxyGroupElement += `<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">`;
-    
-    for (let i = 0; i < this.proxies.length; i++) {
-        const prx = this.proxies[i];
+        let proxyGroupElement = "";
+        proxyGroupElement += '<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">';
+        
+        for (let i = 0; i < this.proxies.length; i++) {
+            const prx = this.proxies[i];
 
-        // Assign proxies
-        proxyGroupElement += `<div class="lozad scale-95 mb-4 bg-blue-300/30 dark:bg-slate-800 transition-all duration-300 rounded-lg p-6 flex flex-col shadow-lg border border-white/20 hover:scale-105 backdrop-blur-md">`;
-        
-        // Header Kartu: Ping dan Bendera
-        proxyGroupElement += `  <div class="flex justify-between items-center">`;
-        
-        // Elemen Ping di kiri
-        proxyGroupElement += `    <div id="ping-${i}" class="animate-pulse text-xs font-semibold text-left">
-    <span class="text-red-500 dark:text-red-400">I</span><span class="text-orange-500 dark:text-orange-400">d</span><span class="text-yellow-500 dark:text-yellow-400">l</span><span class="text-green-500 dark:text-green-400">e</span>
-    <span class="text-slate-500 dark:text-slate-400">${prx.prxIP}:${prx.prxPort}</span>
-</div>`;
+            proxyGroupElement += '<div class="lozad scale-95 mb-4 bg-blue-300/30 dark:bg-slate-800 transition-all duration-300 rounded-lg p-6 flex flex-col shadow-lg border border-white/20 hover:scale-105 backdrop-blur-md">';
+            proxyGroupElement += '  <div class="flex justify-between items-center">';
+            proxyGroupElement += '    <div id="ping-' + i + '" class="animate-pulse text-xs font-semibold text-left">' +
+        '<span class="text-red-500 dark:text-red-400">I</span><span class="text-orange-500 dark:text-orange-400">d</span><span class="text-yellow-500 dark:text-yellow-400">l</span><span class="text-green-500 dark:text-green-400">e</span>' +
+        '<span class="text-slate-500 dark:text-slate-400">' + prx.prxIP + ':' + prx.prxPort + '</span>' +
+    '</div>';
+            proxyGroupElement += '    <div class="rounded-full overflow-hidden border-4 border-white dark:border-slate-800">';
+            proxyGroupElement += '        <img width="40" src="https://hatscripts.github.io/circle-flags/flags/' + prx.country.toLowerCase() + '.svg" class="flag-spin" />';
+            proxyGroupElement += '    </div>';
+            proxyGroupElement += '  </div>';
+            proxyGroupElement += '  <div class="rounded-lg py-4 px-4 bg-blue-200/20 dark:bg-slate-700/50 flex-grow mt-4">';
+            proxyGroupElement += '    <h5 class="font-bold text-lg text-slate-800 dark:text-slate-100 mb-1 overflow-x-scroll scrollbar-hide text-nowrap">' + prx.org + '</h5>';
+            proxyGroupElement += '    <div class="text-slate-600 dark:text-slate-300 text-sm">';
+            proxyGroupElement += '      <p>IP: ' + prx.prxIP + '</p>';
+            proxyGroupElement += '      <p>Port: ' + prx.prxPort + '</p>';
+            proxyGroupElement += '      <div id="container-region-check-' + i + '">';
+            proxyGroupElement += '        <input id="config-sample-' + i + '" class="hidden" type="text" value="' + prx.list[0] + '">';
+            proxyGroupElement += '      </div>';
+            proxyGroupElement += '    </div>';
+            proxyGroupElement += '  </div>';
+            proxyGroupElement += '  <div class="grid grid-cols-2 gap-2 mt-4 text-sm">';
 
-        // Logo Bendera di kanan
-        proxyGroupElement += `    <div class="rounded-full overflow-hidden border-4 border-white dark:border-slate-800">`;
-proxyGroupElement += `        <img width="40" src="https://hatscripts.github.io/circle-flags/flags/${prx.country.toLowerCase()}.svg" class="flag-spin" />`; // Tambahkan class="flag-spin"
-proxyGroupElement += `    </div>`;
-        
-        proxyGroupElement += `  </div>`; // Penutup div flexbox
-        
-        // Konten Kartu
-        proxyGroupElement += `  <div class="rounded-lg py-4 px-4 bg-blue-200/20 dark:bg-slate-700/50 flex-grow mt-4">`;
-        proxyGroupElement += `    <h5 class="font-bold text-lg text-slate-800 dark:text-slate-100 mb-1 overflow-x-scroll scrollbar-hide text-nowrap">${prx.org}</h5>`;
-        proxyGroupElement += `    <div class="text-slate-600 dark:text-slate-300 text-sm">`;
-        proxyGroupElement += `      <p>IP: ${prx.prxIP}</p>`;
-        proxyGroupElement += `      <p>Port: ${prx.prxPort}</p>`;
-        proxyGroupElement += `      <div id="container-region-check-${i}">`;
-        proxyGroupElement += `        <input id="config-sample-${i}" class="hidden" type="text" value="${prx.list[0]}">`;
-        proxyGroupElement += `      </div>`;
-        proxyGroupElement += `    </div>`;
-        proxyGroupElement += `  </div>`;
-        
-        // Tombol Konfigurasi
-        proxyGroupElement += `  <div class="grid grid-cols-2 gap-2 mt-4 text-sm">`;
-        
-        const indexName = [
-            `TROJAN TLS`,
-            `VLESS TLS`,
-            `SS TLS`,
-            `TROJAN NTLS`,
-            `VLESS NTLS`,
-            `SS NTLS`,
-        ];
-        
-        for (let x = 0; x < prx.list.length; x++) {
-            const proxy = prx.list[x];
-            // Tombol kuning keemasan di mode terang, tetap biru di mode gelap
-            proxyGroupElement += `<button class="bg-yellow-400 hover:bg-yellow-500 dark:bg-indigo-500 dark:hover:bg-indigo-600 rounded-md p-1.5 w-full text-black dark:text-white font-semibold transition-colors duration-200 text-xs" onclick="copyToClipboard('${proxy}')">${indexName[x]}</button>`;
+            const indexName = [
+                'TROJAN TLS', 'VLESS TLS', 'SS TLS',
+                'TROJAN NTLS', 'VLESS NTLS', 'SS NTLS',
+            ];
+
+            for (let x = 0; x < prx.list.length; x++) {
+                const proxy = prx.list[x];
+                proxyGroupElement += '<button class="bg-yellow-400 hover:bg-yellow-500 dark:bg-indigo-500 dark:hover:bg-indigo-600 rounded-md p-1.5 w-full text-black dark:text-white font-semibold transition-colors duration-200 text-xs" onclick="copyToClipboard(\'' + proxy + '\')">' + indexName[x] + '</button>';
+            }
+
+            proxyGroupElement += '  </div>';
+            proxyGroupElement += '</div>';
         }
-        
-        proxyGroupElement += `  </div>`;
-        proxyGroupElement += `</div>`; // Penutup Kartu
-    }
-    proxyGroupElement += `</div>`; // Penutup Grid Kontainer
+        proxyGroupElement += '</div>';
 
-    this.html = this.html.replaceAll("PLACEHOLDER_PROXY_GROUP", `${proxyGroupElement}`);
-}
+        this.html = this.html.replaceAll("PLACEHOLDER_PROXY_GROUP", proxyGroupElement);
+    }
 
     buildCountryFlag() {
         const prxBankUrl = this.url.searchParams.get("prx-list");
@@ -1952,26 +1935,24 @@ proxyGroupElement += `    </div>`;
         let flagElement = "";
         for (const flag of new Set(flagList)) {
             const isSelected = selectedCC === flag;
-            // Apply different classes based on selection state
             const linkClasses = isSelected 
-                ? 'border-2 border-blue-400 rounded-lg p-0.5' // Classes for selected flag
-                : 'py-1';                                     // Classes for non-selected flag
+                ? 'border-2 border-blue-400 rounded-lg p-0.5'
+                : 'py-1';
 
-            flagElement += `<a href="/sub?cc=${flag}${prxBankUrl ? "&prx-list=" + prxBankUrl : ""
-                }" class="flex items-center justify-center ${linkClasses}" ><img width=30 src="https://hatscripts.github.io/circle-flags/flags/${flag.toLowerCase()}.svg" /></a>`;
+            flagElement += '<a href="/sub?cc=' + flag + (prxBankUrl ? "&prx-list=" + prxBankUrl : "") +
+                '" class="flex items-center justify-center ' + linkClasses + '" ><img width=30 src="https://hatscripts.github.io/circle-flags/flags/' + flag.toLowerCase() + '.svg" /></a>';
         }
 
         this.html = this.html.replaceAll("PLACEHOLDER_BENDERA_NEGARA", flagElement);
     }
 
     addPageButton(text, link, isDisabled) {
-        const pageButton = `<li><button ${
-            isDisabled ? "disabled" : ""
-        } class="px-3 py-3 text-xs bg-indigo-500 hover:bg-indigo-600 disabled:bg-slate-400 dark:disabled:bg-slate-600 text-white font-semibold rounded-md transition-colors" onclick=navigateTo('${link}')>${text}</button></li>`;
+        const pageButton = '<li><button ' +
+            (isDisabled ? "disabled" : "") +
+        ' class="px-3 py-3 text-xs bg-indigo-500 hover:bg-indigo-600 disabled:bg-slate-400 dark:disabled:bg-slate-600 text-white font-semibold rounded-md transition-colors" onclick=navigateTo(\'' + link + '\')>' + text + '</button></li>';
 
-        this.html = this.html.replaceAll("PLACEHOLDER_PAGE_BUTTON", `${pageButton}\nPLACEHOLDER_PAGE_BUTTON`);
+        this.html = this.html.replaceAll("PLACEHOLDER_PAGE_BUTTON", pageButton + '\nPLACEHOLDER_PAGE_BUTTON');
     }
-
 
     setPaginationInfo(info) {
         this.html = this.html.replace("PLACEHOLDER_PAGINATION_INFO", info);
@@ -1985,29 +1966,29 @@ proxyGroupElement += `    </div>`;
 
         let whatsappButton = '';
         if (WHATSAPP_NUMBER) {
-            whatsappButton = `<a href="https://wa.me/${WHATSAPP_NUMBER}" target="_blank">
-                              <button class="bg-green-500 hover:bg-green-600 rounded-full border-2 border-gray-900 p-2 block transition-colors duration-200">
-                                <img src="https://geoproject.biz.id/circle-flags/whatsapp.png" alt="WhatsApp Icon" class="size-6">
-                              </button>
-                            </a>`;
+            whatsappButton = '<a href="https://wa.me/' + WHATSAPP_NUMBER + '" target="_blank">' +
+                              '<button class="bg-green-500 hover:bg-green-600 rounded-full border-2 border-gray-900 p-2 block transition-colors duration-200">' +
+                                '<img src="https://geoproject.biz.id/circle-flags/whatsapp.png" alt="WhatsApp Icon" class="size-6">' +
+                              '</button>' +
+                            '</a>';
         }
         this.html = this.html.replace('PLACEHOLDER_WHATSAPP_BUTTON', whatsappButton);
 
         let telegramButton = '';
         if (TELEGRAM_USERNAME) {
-            telegramButton = `<a href="https://t.me/${TELEGRAM_USERNAME}" target="_blank">
-                              <button class="bg-blue-500 hover:bg-blue-600 rounded-full border-2 border-gray-900 p-2 block transition-colors duration-200">
-                                <img src="https://geoproject.biz.id/circle-flags/telegram.png" alt="Telegram Icon" class="size-6">
-                              </button>
-                            </a>`;
+            telegramButton = '<a href="https://t.me/' + TELEGRAM_USERNAME + '" target="_blank">' +
+                              '<button class="bg-blue-500 hover:bg-blue-600 rounded-full border-2 border-gray-900 p-2 block transition-colors duration-200">' +
+                                '<img src="https://geoproject.biz.id/circle-flags/telegram.png" alt="Telegram Icon" class="size-6">' +
+                              '</button>' +
+                            '</a>';
         }
         this.html = this.html.replace('PLACEHOLDER_TELEGRAM_BUTTON', telegramButton);
 
-        this.html = this.html.replaceAll('PLACEHOLDER_CHECK_PROXY_URL', `https://${serviceName}.${rootDomain}/check?target=`);
-        this.html = this.html.replaceAll('PLACEHOLDER_ROOT_DOMAIN', `${serviceName}.${rootDomain}`);
+        this.html = this.html.replaceAll('PLACEHOLDER_CHECK_PROXY_URL', 'https://' + serviceName + '.' + rootDomain + '/check?target=');
+        this.html = this.html.replaceAll('PLACEHOLDER_ROOT_DOMAIN', serviceName + '.' + rootDomain);
         this.html = this.html.replaceAll('PLACEHOLDER_CONVERTER_URL', CONVERTER_URL);
         this.html = this.html.replaceAll('PLACEHOLDER_DONATE_LINK', DONATE_LINK);
 
-        return this.html.replaceAll(/PLACEHOLDER_\w+/gim, "");
+        return this.html.replaceAll(/PLACEHOLDER_\\w+/gim, "");
     }
 }
