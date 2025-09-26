@@ -40,9 +40,9 @@ const CORS_HEADER_OPTIONS = {
   "Access-Control-Max-Age": "86400",
 };
 
-async function getKVPrxList(kvPrxUrl = KV_PRX_URL) {
+async function getKVPrxList(kvPrxUrl) {
   if (!kvPrxUrl) {
-    throw new Error("No URL Provided!");
+    return {};
   }
 
   const kvPrx = await fetch(kvPrxUrl);
@@ -219,7 +219,7 @@ export default {
           // Contoh: /ID, /SG, dll
           const prxKeys = url.pathname.replace("/", "").toUpperCase().split(",");
           const prxKey = prxKeys[Math.floor(Math.random() * prxKeys.length)];
-          const kvPrx = await getKVPrxList();
+          const kvPrx = await getKVPrxList(env.KV_PRX_URL);
 
           prxIP = kvPrx[prxKey][Math.floor(Math.random() * kvPrx[prxKey].length)];
 
@@ -1853,6 +1853,7 @@ setTitle(title) {
                         ${prx.country}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">${prx.org}</td>
+                    <td id="ping-${i}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white">${prx.prxIP}:${prx.prxPort}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button onclick="copyToClipboard('${proxyConfigs}')" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Copy</button>
                     </td>
@@ -1869,6 +1870,7 @@ setTitle(title) {
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">IP</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Country</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">ISP</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Status</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Action</th>
                         </tr>
                     </thead>
