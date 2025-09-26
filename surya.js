@@ -1471,7 +1471,7 @@ let baseHTML = `
               domainContainer.className = "flex items-center justify-between w-full bg-amber-400 rounded-md p-2";
 
               const domainText = document.createElement("span");
-              domainText.innerText = `${index + 1}. ${domain.hostname}`;
+              domainText.innerText = (index + 1) + ". " + domain.hostname;
               domainContainer.appendChild(domainText);
 
               const deleteButton = document.createElement("button");
@@ -1489,7 +1489,7 @@ let baseHTML = `
       }
 
       function deleteDomain(domainId, domainName) {
-        const password = prompt(`Masukkan password untuk menghapus domain: ${domainName}`);
+        const password = prompt("Masukkan password untuk menghapus domain: " + domainName);
         if (password === null) {
           // User cancelled the prompt
           return;
@@ -1497,7 +1497,7 @@ let baseHTML = `
 
         windowInfoContainer.innerText = "Menghapus domain...";
 
-        const url = `https://${rootDomain}/api/v1/domains/delete?id=${domainId}&password=${encodeURIComponent(password)}`;
+        const url = "https://" + rootDomain + "/api/v1/domains/delete?id=" + domainId + "&password=" + encodeURIComponent(password);
         fetch(url, { method: 'DELETE' }).then(res => {
           if (res.status === 200) {
             windowInfoContainer.innerText = "Domain berhasil dihapus!";
@@ -1506,10 +1506,10 @@ let baseHTML = `
           } else if (res.status === 401) {
             windowInfoContainer.innerText = "Password salah!";
           } else {
-            windowInfoContainer.innerText = `Gagal menghapus domain! Status: ${res.status}`;
+            windowInfoContainer.innerText = "Gagal menghapus domain! Status: " + res.status;
           }
         }).catch(err => {
-            windowInfoContainer.innerText = `Error: ${err.message}`;
+            windowInfoContainer.innerText = "Error: " + err.message;
         });
       }
 
