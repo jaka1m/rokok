@@ -40,9 +40,9 @@ const CORS_HEADER_OPTIONS = {
   "Access-Control-Max-Age": "86400",
 };
 
-async function getKVPrxList(kvPrxUrl = KV_PRX_URL) {
+async function getKVPrxList(kvPrxUrl) {
   if (!kvPrxUrl) {
-    throw new Error("No URL Provided!");
+    return {};
   }
 
   const kvPrx = await fetch(kvPrxUrl);
@@ -117,11 +117,16 @@ function getAllConfig(request, hostName, prxList, page = 0, selectedProtocol = n
     try {
         const uuid = crypto.randomUUID();
 
+        // If a custom host is selected, the host/SNI will be a combination.
+        // Otherwise, it's just the application's domain.
+        const effectiveHost = hostName === APP_DOMAIN ? APP_DOMAIN : `${hostName}.${APP_DOMAIN}`;
+
         // Build URI
+        // The address is the selected host (e.g., ava.game.naver.com or the app domain)
         const uri = new URL(`${atob(horse)}://${hostName}`);
         uri.searchParams.set("encryption", "none");
         uri.searchParams.set("type", "ws");
-        uri.searchParams.set("host", hostName);
+        uri.searchParams.set("host", effectiveHost);
 
         // Build HTML
         const document = new Document(request);
@@ -152,7 +157,7 @@ function getAllConfig(request, hostName, prxList, page = 0, selectedProtocol = n
                             "plugin",
                             `${atob(v2)}-plugin${
                                 port == 80 ? "" : ";tls"
-                            };mux=0;mode=websocket;path=/Free-VPN-Geo-Project/${prxIP}-${prxPort};host=${hostName}`
+                            };mux=0;mode=websocket;path=/Free-VPN-Geo-Project/${prxIP}-${prxPort};host=${effectiveHost}`
                         );
                     } else {
                         uri.username = uuid;
@@ -161,7 +166,7 @@ function getAllConfig(request, hostName, prxList, page = 0, selectedProtocol = n
 
                     uri.protocol = protocol;
                     uri.searchParams.set("security", port == 443 ? "tls" : "none");
-                    uri.searchParams.set("sni", port == 80 && protocol == atob(flash) ? "" : hostName);
+                    uri.searchParams.set("sni", port == 80 && protocol == atob(flash) ? "" : effectiveHost);
 
                     // Build VPN URI
                     prxs.push(uri.toString());
@@ -219,7 +224,7 @@ export default {
           // Contoh: /ID, /SG, dll
           const prxKeys = url.pathname.replace("/", "").toUpperCase().split(",");
           const prxKey = prxKeys[Math.floor(Math.random() * prxKeys.length)];
-          const kvPrx = await getKVPrxList();
+          const kvPrx = await getKVPrxList(env.KV_PRX_URL);
 
           prxIP = kvPrx[prxKey][Math.floor(Math.random() * kvPrx[prxKey].length)];
 
@@ -235,7 +240,7 @@ export default {
         const pageIndex = parseInt(page ? page[1] : "0");
 
         // Queries
-        const hostname = url.searchParams.get("host") || "ava.game.naver.com";
+        const hostname = url.searchParams.get("host") || APP_DOMAIN;
         const countrySelect = url.searchParams.get("cc")?.toUpperCase();
         const selectedProtocol = url.searchParams.get("vpn");
         const selectedPort = url.searchParams.get("port");
@@ -340,6 +345,7 @@ export default {
           const filterLimit = parseInt(url.searchParams.get("limit")) || 10;
           const filterFormat = url.searchParams.get("format") || "raw";
           const fillerDomain = url.searchParams.get("domain") || APP_DOMAIN;
+          const effectiveHost = fillerDomain === APP_DOMAIN ? APP_DOMAIN : `${fillerDomain}.${APP_DOMAIN}`;
 
           const prxBankUrl = url.searchParams.get("prx-list") || env.PRX_BANK_URL;
           const prxList = await getPrxList(prxBankUrl)
@@ -362,7 +368,7 @@ export default {
             const uri = new URL(`${atob(horse)}://${fillerDomain}`);
             uri.searchParams.set("encryption", "none");
             uri.searchParams.set("type", "ws");
-            uri.searchParams.set("host", APP_DOMAIN);
+            uri.searchParams.set("host", effectiveHost);
 
             for (const port of filterPort) {
               for (const protocol of filterVPN) {
@@ -376,14 +382,14 @@ export default {
                     "plugin",
                     `${atob(v2)}-plugin${port == 80 ? "" : ";tls"};mux=0;mode=websocket;path=/Free-VPN-Geo-Project/${prxIP}-${
                       prx.prxPort
-                    };host=${APP_DOMAIN}`
+                    };host=${effectiveHost}`
                   );
                 } else {
                   uri.username = uuid;
                 }
 
                 uri.searchParams.set("security", port == 443 ? "tls" : "none");
-                uri.searchParams.set("sni", port == 80 && protocol == atob(flash) ? "" : APP_DOMAIN);
+                uri.searchParams.set("sni", port == 80 && protocol == atob(flash) ? "" : effectiveHost);
                 uri.searchParams.set("path", `/Free-VPN-Geo-Project/${prxIP}-${prx.prxPort}`);
 
                 uri.hash = `${result.length + 1} ${getFlagEmoji(prx.country)} ${prx.org} WS ${
@@ -1853,6 +1859,7 @@ setTitle(title) {
                         ${prx.country}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">${prx.org}</td>
+                    <td id="ping-${i}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white">${prx.prxIP}:${prx.prxPort}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button onclick="copyToClipboard('${proxyConfigs}')" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Copy</button>
                     </td>
@@ -1869,6 +1876,7 @@ setTitle(title) {
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">IP</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Country</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">ISP</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Status</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Action</th>
                         </tr>
                     </thead>
@@ -1957,7 +1965,7 @@ setTitle(title) {
     buildDropdowns() {
         const selectedProtocol = this.url.searchParams.get('vpn') || 'all';
         const selectedCountry = this.url.searchParams.get('cc') || 'all';
-        const selectedHost = this.url.searchParams.get('host') || 'all';
+        const selectedHost = this.url.searchParams.get('host') || APP_DOMAIN;
         const selectedPort = this.url.searchParams.get('port') || 'all';
 
         // Protocol Dropdown
@@ -1980,6 +1988,7 @@ setTitle(title) {
         }
         this.html = this.html.replace('PLACEHOLDER_PROTOCOL_DROPDOWN', `
             <div class="relative">
+                <label for="protocol-select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Protocol</label>
                 <select onchange="applyFilters()" id="protocol-select" class="w-full p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     ${protocolOptions}
                 </select>
@@ -1994,6 +2003,7 @@ setTitle(title) {
         }
         this.html = this.html.replace('PLACEHOLDER_COUNTRY_DROPDOWN', `
             <div class="relative">
+                <label for="country-select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Country</label>
                 <select onchange="applyFilters()" id="country-select" class="w-full p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     ${countryOptions}
                 </select>
@@ -2001,13 +2011,14 @@ setTitle(title) {
         `);
 
         // Host Dropdown
-        const hosts = ['PLACEHOLDER_ROOT_DOMAIN', 'ava.game.naver.com', 'investor.fb.com'];
+        const hosts = [APP_DOMAIN, 'ava.game.naver.com', 'investor.fb.com'];
         let hostOptions = '';
         for (const host of hosts) {
             hostOptions += `<option value="${host}" ${selectedHost === host ? 'selected' : ''}>${host}</option>`;
         }
         this.html = this.html.replace('PLACEHOLDER_HOST_DROPDOWN', `
             <div class="relative">
+                <label for="host-select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Wildcard/Host</label>
                 <select onchange="applyFilters()" id="host-select" class="w-full p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     ${hostOptions}
                 </select>
@@ -2031,6 +2042,7 @@ setTitle(title) {
         }
         this.html = this.html.replace('PLACEHOLDER_PORT_DROPDOWN', `
             <div class="relative">
+                <label for="port-select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Security/Port</label>
                 <select onchange="applyFilters()" id="port-select" class="w-full p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                     ${portOptions}
                 </select>
