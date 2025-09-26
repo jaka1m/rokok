@@ -1820,8 +1820,8 @@ setTitle(title) {
         // ISP
         proxyGroupElement += `<div class="col-span-5 text-sm text-gray-300 truncate">${prx.org}</div>`;
         
-        // Address (IP) - This is a placeholder, actual address is not in the provided data structure
-        proxyGroupElement += `<div class="col-span-2 text-sm text-gray-300"></div>`;
+        // Address (IP)
+        proxyGroupElement += `<div class="col-span-2 text-sm text-gray-300">${prx.prxIP}</div>`;
 
         // Checkbox
         proxyGroupElement += `<div class="col-span-1 flex justify-end">`;
