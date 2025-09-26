@@ -1472,7 +1472,7 @@ let baseHTML = `
 
               const numText = document.createElement("span");
               numText.className = "text-sm font-medium text-gray-300";
-              numText.innerText = `${index + 1}.`;
+              numText.innerText = (index + 1) + ".";
               domainContainer.appendChild(numText);
 
               const domainText = document.createElement("span");
@@ -1569,7 +1569,7 @@ let baseHTML = `
 
         Swal.fire({
           title: 'Mendaftarkan Wildcard...',
-          text: `Memproses ${domains.length} domain.`,
+          text: 'Memproses ' + domains.length + ' domain.',
           allowOutsideClick: false,
           width: '300px',
           didOpen: () => {
@@ -1585,7 +1585,7 @@ let baseHTML = `
             continue;
           }
 
-          const url = `https://${rootDomain}/api/v1/domains/put?domain=${domain}`;
+          const url = "https://" + rootDomain + "/api/v1/domains/put?domain=" + domain;
           try {
             const res = await fetch(url);
             if (res.status === 200) {
@@ -1593,23 +1593,22 @@ let baseHTML = `
             } else if (res.status === 409) {
               results.existed.push(rawDomain);
             } else {
-              results.failed.push(`${rawDomain} (Error: ${res.status})`);
+              results.failed.push(rawDomain + " (Error: " + res.status + ")");
             }
           } catch (e) {
-            results.failed.push(`${rawDomain} (Error: Network issue)`);
+            results.failed.push(rawDomain + " (Error: Network issue)");
           }
         }
 
         Swal.close();
 
-        let resultText = `
-          <div style="text-align: left;">
-            <p><strong>Berhasil:</strong> ${results.successful.length}</p>
-            <p><strong>Gagal:</strong> ${results.failed.length}</p>
-            <p><strong>Sudah Ada:</strong> ${results.existed.length}</p>
-            <p><strong>Tidak Valid:</strong> ${results.invalid.length}</p>
-          </div>
-        `;
+        let resultText =
+          '<div style="text-align: left;">' +
+          '<p><strong>Berhasil:</strong> ' + results.successful.length + '</p>' +
+          '<p><strong>Gagal:</strong> ' + results.failed.length + '</p>' +
+          '<p><strong>Sudah Ada:</strong> ' + results.existed.length + '</p>' +
+          '<p><strong>Tidak Valid:</strong> ' + results.invalid.length + '</p>' +
+          '</div>';
 
         Swal.fire({
           title: 'Pendaftaran Selesai',
