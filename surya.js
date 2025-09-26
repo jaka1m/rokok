@@ -1588,7 +1588,7 @@ let baseHTML = `
 
         Swal.fire({
             title: 'Mendaftarkan Wildcard...',
-            text: `Memproses ${"$"}{domains.length} wildcard.`,
+            text: `Memproses \${domains.length} wildcard.`,
             allowOutsideClick: false,
             width: '300px',
             didOpen: () => {
