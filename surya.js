@@ -1329,26 +1329,29 @@ let baseHTML = `
   </div>
 </div>
 </div>
-      <!-- Wildcards -->
-      <div id="wildcards-window" class="fixed hidden z-30 top-0 right-0 w-full h-full flex justify-center items-center">
-    <div class="w-[75%] max-w-md h-auto flex flex-col gap-2 p-4 rounded-lg bg-white bg-opacity-20 backdrop-blur-sm border border-gray-300">
-        <div class="flex w-full h-full gap-2 justify-between">
-            <input id="new-domain-input" type="text" placeholder="Input wildcard" class="w-full h-full px-4 py-2 rounded-md focus:outline-0 bg-gray-700 text-white"/>
-            <button onclick="registerDomain()" class="p-2 rounded-full bg-blue-600 hover:bg-blue-700 flex justify-center items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                    <path fill-rule="evenodd" d="M16.72 7.72a.75.75 0 0 1 1.06 0l3.75 3.75a.75.75 0 0 1 0 1.06l-3.75 3.75a.75.75 0 1 1-1.06-1.06l2.47-2.47H3a.75.75 0 0 1 0-1.5h16.19l-2.47-2.47a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"></path>
-                </svg>
-            </button>
+<!-- Wildcards -->
+<div id="wildcards-window" class="hidden fixed z-30 inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex justify-center items-center transition-opacity duration-300">
+    <div class="w-full max-w-md m-4">
+        <div class="glass-effect dark:glass-effect-light rounded-2xl shadow-xl p-6 flex flex-col gap-4">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-accent-cyan">Wildcard Manager</h3>
+                <button onclick="toggleWildcardsWindow()" class="p-2 rounded-full hover:bg-gray-700 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+            <div class="flex w-full gap-2">
+                <input id="new-domain-input" type="text" placeholder="Input new wildcard..." class="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-accent-blue transition-all">
+                <button id="add-domain-btn" onclick="registerDomain()" class="w-24 p-2 rounded-lg bg-accent-blue hover:bg-blue-600 text-white font-semibold flex justify-center items-center transition-all duration-300">
+                    <span id="add-domain-btn-text">Add</span>
+                    <div id="add-domain-loader" class="hidden animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                </button>
+            </div>
+            <div id="container-domains" class="w-full h-48 rounded-lg bg-gray-900 bg-opacity-50 border border-gray-700 p-2 overflow-y-auto scrollbar-hide">
+                <!-- Domain list will be populated here -->
+            </div>
         </div>
-
-        <div id="container-domains" class="w-full h-32 rounded-md flex flex-col gap-1 overflow-y-scroll scrollbar-hide p-2 bg-gray-900"></div>
-
-        <button onclick="toggleWildcardsWindow()" class="transform-gpu flex items-center justify-center gap-1 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-sm font-medium shadow-lg hover:shadow-blue-500/30 transition-all duration-200 hover:-translate-y-0.5 p-2">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-        <path fill-rule="evenodd" d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z" clip-rule="evenodd"/>
-    </svg>
-    Close
-</button>
     </div>
 </div>
     </div>
@@ -1452,41 +1455,58 @@ let baseHTML = `
       // Local variable
       let rawConfig = "";
 
-      function getDomainList() {
-        if (isDomainListFetched) return;
-        isDomainListFetched = true;
+async function getDomainList() {
+    if (isDomainListFetched) return;
+    isDomainListFetched = true;
 
-        windowInfoContainer.innerText = "Fetching data...";
+    const domainListContainer = document.getElementById("container-domains");
+    domainListContainer.innerHTML = `
+        <div class="flex justify-center items-center h-full">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-cyan"></div>
+        </div>
+    `;
 
-        const url = "https://" + rootDomain + "/api/v1/domains/get";
-        fetch(url).then(async (res) => {
-          const domainListContainer = document.getElementById("container-domains");
-          domainListContainer.innerHTML = "";
+    try {
+        const url = `https://${rootDomain}/api/v1/domains/get`;
+        const response = await fetch(url);
 
-          if (res.status == 200) {
-            windowInfoContainer.innerText = "Done!";
-            const respJson = await res.json();
-            respJson.forEach((domain, index) => {
-              const domainContainer = document.createElement("div");
-              domainContainer.className = "flex items-center justify-between w-full bg-amber-400 rounded-md p-2";
+        domainListContainer.innerHTML = ""; // Clear loader
 
-              const domainText = document.createElement("span");
-              domainText.innerText = (index + 1) + ". " + domain.hostname;
-              domainContainer.appendChild(domainText);
+        if (response.status === 200) {
+            const domains = await response.json();
+            if (domains.length === 0) {
+                domainListContainer.innerHTML = `<p class="text-center text-gray-400 mt-4">No domains found.</p>`;
+                return;
+            }
 
-              const deleteButton = document.createElement("button");
-              deleteButton.innerText = "Hapus";
-              deleteButton.className = "bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded text-xs";
-              deleteButton.onclick = () => deleteDomain(domain.id, domain.hostname);
-              domainContainer.appendChild(deleteButton);
+            domains.forEach((domain, index) => {
+                const domainElement = document.createElement("div");
+                domainElement.className = "flex items-center justify-between w-full bg-gray-800 rounded-lg p-3 transition-all hover:bg-gray-700";
 
-              domainListContainer.appendChild(domainContainer);
+                const domainText = document.createElement("span");
+                domainText.className = "text-white font-medium";
+                domainText.innerText = `${index + 1}. ${domain.hostname}`;
+                domainElement.appendChild(domainText);
+
+                const deleteButton = document.createElement("button");
+                deleteButton.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-400 hover:text-red-600" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                `;
+                deleteButton.className = "p-1 rounded-full transition-colors";
+                deleteButton.onclick = () => deleteDomain(domain.id, domain.hostname);
+                domainElement.appendChild(deleteButton);
+
+                domainListContainer.appendChild(domainElement);
             });
-          } else {
-            windowInfoContainer.innerText = "Failed!";
-          }
-        });
-      }
+        } else {
+            domainListContainer.innerHTML = `<p class="text-center text-red-400 mt-4">Error: Failed to fetch domains (Status: ${response.status})</p>`;
+        }
+    } catch (error) {
+        domainListContainer.innerHTML = `<p class="text-center text-red-400 mt-4">Error: Could not connect to the server.</p>`;
+    }
+}
 
       function deleteDomain(domainId, domainName) {
         Swal.fire({
@@ -1540,34 +1560,86 @@ let baseHTML = `
         });
       }
 
-      function registerDomain() {
-        const domainInputElement = document.getElementById("new-domain-input");
-        const rawDomain = domainInputElement.value.toLowerCase();
-        const domain = domainInputElement.value + "." + rootDomain;
+async function registerDomain() {
+    const domainInputElement = document.getElementById("new-domain-input");
+    const addButton = document.getElementById('add-domain-btn');
+    const addButtonText = document.getElementById('add-domain-btn-text');
+    const loader = document.getElementById('add-domain-loader');
 
-        if (!rawDomain.match(/\\w+\\.\\w+$/) || rawDomain.endsWith(rootDomain)) {
-          windowInfoContainer.innerText = "Invalid URL!";
-          return;
-        }
+    const rawDomain = domainInputElement.value.toLowerCase().trim();
 
-        windowInfoContainer.innerText = "Pushing request...";
-
-        const url = "https://" + rootDomain + "/api/v1/domains/put?domain=" + domain;
-        const res = fetch(url).then((res) => {
-          if (res.status == 200) {
-            windowInfoContainer.innerText = "Done!";
-            domainInputElement.value = "";
-            isDomainListFetched = false;
-            getDomainList();
-          } else {
-            if (res.status == 409) {
-              windowInfoContainer.innerText = "Domain exists!";
-            } else {
-              windowInfoContainer.innerText = "Error " + res.status;
-            }
-          }
+    if (!rawDomain || !/^[a-zA-Z0-9-]+$/.test(rawDomain)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Input',
+            text: 'Please enter a valid subdomain (letters, numbers, and hyphens only).',
+            width: '300px',
         });
-      }
+        return;
+    }
+
+    const domain = `${rawDomain}.${rootDomain}`;
+
+    // Show loader
+    addButtonText.classList.add('hidden');
+    loader.classList.remove('hidden');
+    addButton.disabled = true;
+
+    try {
+        const url = `https://${rootDomain}/api/v1/domains/put?domain=${domain}`;
+        const response = await fetch(url, { method: 'PUT' });
+
+        if (response.status === 200) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: `Domain '${domain}' has been registered.`,
+                width: '300px',
+                timer: 2000,
+                showConfirmButton: false,
+            });
+            domainInputElement.value = "";
+            isDomainListFetched = false; // Reset to allow re-fetching
+            getDomainList();
+        } else {
+            let errorMessage;
+            switch (response.status) {
+                case 400:
+                    errorMessage = "Invalid domain format.";
+                    break;
+                case 403:
+                    errorMessage = "The domain contains forbidden words.";
+                    break;
+                case 409:
+                    errorMessage = "This domain already exists.";
+                    break;
+                case 530:
+                     errorMessage = "This domain is blocked.";
+                     break;
+                default:
+                    errorMessage = `An error occurred: Status ${response.status}`;
+            }
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: errorMessage,
+                width: '300px',
+            });
+        }
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Connection Error',
+            text: 'Could not connect to the server to register the domain.',
+            width: '300px',
+        });
+    } finally {
+        // Hide loader
+        loader.classList.add('hidden');
+        addButtonText.classList.remove('hidden');
+        addButton.disabled = false;
+    }
+}
 
       function copyToClipboard(text) {
         toggleOutputWindow();
