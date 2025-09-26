@@ -118,7 +118,7 @@ function getAllConfig(request, hostName, prxList, page = 0) {
         const uuid = crypto.randomUUID();
 
         // Build URI
-        const uri = new URL(atob(horse) + "://" + hostName);
+        const uri = new URL(`${atob(horse)}://${hostName}`);
         uri.searchParams.set("encryption", "none");
         uri.searchParams.set("type", "ws");
         uri.searchParams.set("host", hostName);
@@ -135,21 +135,21 @@ function getAllConfig(request, hostName, prxList, page = 0) {
 
             const { prxIP, prxPort, country, org } = prx;
 
-            uri.searchParams.set("path", "/Free-VPN-Geo-Project/" + prxIP + "-" + prxPort);
+            uri.searchParams.set("path", `/Free-VPN-Geo-Project/${prxIP}-${prxPort}`);
 
             const prxs = [];
             for (const port of PORTS) {
                 uri.port = port.toString();
-                uri.hash = (i + 1) + " " + getFlagEmoji(country) + " " + org + " WS " + (port == 443 ? "TLS" : "NTLS") + " [" + serviceName + "]";
+                uri.hash = `${i + 1} ${getFlagEmoji(country)} ${org} WS ${port == 443 ? "TLS" : "NTLS"} [${serviceName}]`;
                 for (const protocol of PROTOCOLS) {
                     // Special exceptions
                     if (protocol === "ss") {
-                        uri.username = btoa("none:" + uuid);
+                        uri.username = btoa(`none:${uuid}`);
                         uri.searchParams.set(
                             "plugin",
-                            atob(v2) + "-plugin" +
-                            (port == 80 ? "" : ";tls") +
-                            ";mux=0;mode=websocket;path=/Free-VPN-Geo-Project/" + prxIP + "-" + prxPort + ";host=" + hostName
+                            `${atob(v2)}-plugin${
+                                port == 80 ? "" : ";tls"
+                            };mux=0;mode=websocket;path=/Free-VPN-Geo-Project/${prxIP}-${prxPort};host=${hostName}`
                         );
                     } else {
                         uri.username = uuid;
@@ -178,20 +178,20 @@ function getAllConfig(request, hostName, prxList, page = 0) {
         // Build pagination
         const showingFrom = totalProxies > 0 ? startIndex + 1 : 0;
         const showingTo = Math.min(startIndex + PRX_PER_PAGE, totalProxies);
-        document.setPaginationInfo("Showing " + showingFrom + " to " + showingTo + " of " + totalProxies + " Proxies");
+        document.setPaginationInfo(`Showing ${showingFrom} to ${showingTo} of ${totalProxies} Proxies`);
 
         // Prev button
-        document.addPageButton("Prev", "/sub/" + (page > 0 ? page - 1 : 0), page === 0);
+        document.addPageButton("Prev", `/sub/${page > 0 ? page - 1 : 0}`, page === 0);
 
 
         // Numbered buttons
 
         // Next button
-        document.addPageButton("Next", "/sub/" + (page < totalPages - 1 ? page + 1 : page), page >= totalPages - 1);
+        document.addPageButton("Next", `/sub/${page < totalPages - 1 ? page + 1 : page}`, page >= totalPages - 1);
 
         return document.build();
     } catch (error) {
-        return "An error occurred while generating the " + atob(flash).toUpperCase() + " configurations. " + error;
+        return `An error occurred while generating the ${atob(flash).toUpperCase()} configurations. ${error}`;
     }
 }
 
@@ -354,7 +354,7 @@ export default {
           const uuid = crypto.randomUUID();
           const result = [];
           for (const prx of prxList) {
-            const uri = new URL(atob(horse) + "://" + fillerDomain);
+            const uri = new URL(`${atob(horse)}://${fillerDomain}`);
             uri.searchParams.set("encryption", "none");
             uri.searchParams.set("type", "ws");
             uri.searchParams.set("host", APP_DOMAIN);
@@ -366,12 +366,12 @@ export default {
                 uri.protocol = protocol;
                 uri.port = port.toString();
                 if (protocol == "ss") {
-                  uri.username = btoa("none:" + uuid);
+                  uri.username = btoa(`none:${uuid}`);
                   uri.searchParams.set(
                     "plugin",
-                    atob(v2) + "-plugin" + (port == 80 ? "" : ";tls") + ";mux=0;mode=websocket;path=/Free-VPN-Geo-Project/" + prxIP + "-" +
-                    prx.prxPort +
-                    ";host=" + APP_DOMAIN
+                    `${atob(v2)}-plugin${port == 80 ? "" : ";tls"};mux=0;mode=websocket;path=/Free-VPN-Geo-Project/${prxIP}-${
+                      prx.prxPort
+                    };host=${APP_DOMAIN}`
                   );
                 } else {
                   uri.username = uuid;
@@ -379,11 +379,11 @@ export default {
 
                 uri.searchParams.set("security", port == 443 ? "tls" : "none");
                 uri.searchParams.set("sni", port == 80 && protocol == atob(flash) ? "" : APP_DOMAIN);
-                uri.searchParams.set("path", "/Free-VPN-Geo-Project/" + prxIP + "-" + prx.prxPort);
+                uri.searchParams.set("path", `/Free-VPN-Geo-Project/${prxIP}-${prx.prxPort}`);
 
-                uri.hash = (result.length + 1) + " " + getFlagEmoji(prx.country) + " " + prx.org + " WS " +
-                  (port == 443 ? "TLS" : "NTLS") +
-                  " [" + serviceName + "]";
+                uri.hash = `${result.length + 1} ${getFlagEmoji(prx.country)} ${prx.org} WS ${
+                  port == 443 ? "TLS" : "NTLS"
+                } [${serviceName}]`;
                 result.push(uri.toString());
               }
             }
@@ -449,7 +449,7 @@ export default {
       const targetReversePrx = env.REVERSE_PRX_TARGET || "example.com";
       return await reverseWeb(request, targetReversePrx);
     } catch (err) {
-      return new Response("An error occurred: " + err.toString(), {
+      return new Response(`An error occurred: ${err.toString()}`, {
         status: 500,
         headers: {
           ...CORS_HEADER_OPTIONS,
@@ -468,7 +468,7 @@ async function websocketHandler(request) {
   let addressLog = "";
   let portLog = "";
   const log = (info, event) => {
-    console.log("[" + addressLog + ":" + portLog + "] " + info, event || "");
+    console.log(`[${addressLog}:${portLog}] ${info}`, event || "");
   };
   const earlyDataHeader = request.headers.get("sec-websocket-protocol") || "";
 
@@ -507,7 +507,7 @@ async function websocketHandler(request) {
           }
 
           addressLog = protocolHeader.addressRemote;
-          portLog = protocolHeader.portRemote + " -> " + (protocolHeader.isUDP ? "UDP" : "TCP");
+          portLog = `${protocolHeader.portRemote} -> ${protocolHeader.isUDP ? "UDP" : "TCP"}`;
 
           if (protocolHeader.hasError) {
             throw new Error(protocolHeader.message);
@@ -597,7 +597,7 @@ async function handleTCPOutBound(
       port: port,
     });
     remoteSocket.value = tcpSocket;
-    log("connected to " + address + ":" + port);
+    log(`connected to ${address}:${port}`);
     const writer = tcpSocket.writable.getWriter();
     await writer.write(rawClientData);
     writer.releaseLock();
@@ -633,7 +633,7 @@ async function handleUDPOutbound(targetAddress, targetPort, udpChunk, webSocket,
       port: targetPort,
     });
 
-    log("Connected to " + targetAddress + ":" + targetPort);
+    log(`Connected to ${targetAddress}:${targetPort}`);
 
     const writer = tcpSocket.writable.getWriter();
     await writer.write(udpChunk);
@@ -652,15 +652,15 @@ async function handleUDPOutbound(targetAddress, targetPort, udpChunk, webSocket,
           }
         },
         close() {
-          log("UDP connection to " + targetAddress + " closed");
+          log(`UDP connection to ${targetAddress} closed`);
         },
         abort(reason) {
-          console.error("UDP connection to " + targetPort + " aborted due to " + reason);
+          console.error(`UDP connection to ${targetPort} aborted due to ${reason}`);
         },
       })
     );
   } catch (e) {
-    console.error("Error while handling UDP outbound, error " + e.message);
+    console.error(`Error while handling UDP outbound, error ${e.message}`);
   }
 }
 
@@ -699,7 +699,7 @@ function makeReadableWebSocketStream(webSocketServer, earlyDataHeader, log) {
       if (readableStreamCancel) {
         return;
       }
-      log("ReadableStream was canceled, due to " + reason);
+      log(`ReadableStream was canceled, due to ${reason}`);
       readableStreamCancel = true;
       safeCloseWebSocket(webSocketServer);
     },
@@ -738,14 +738,14 @@ function readSsHeader(ssBuffer) {
     default:
       return {
         hasError: true,
-        message: "Invalid addressType for SS: " + addressType,
+        message: `Invalid addressType for SS: ${addressType}`,
       };
   }
 
   if (!addressValue) {
     return {
       hasError: true,
-      message: "Destination address empty, address type is: " + addressType,
+      message: `Destination address empty, address type is: ${addressType}`,
     };
   }
 
@@ -777,7 +777,7 @@ function readFlashHeader(buffer) {
   } else {
     return {
       hasError: true,
-      message: "command " + cmd + " is not supported",
+      message: `command ${cmd} is not supported`,
     };
   }
   const portIndex = 18 + optLength + 1;
@@ -813,13 +813,13 @@ function readFlashHeader(buffer) {
     default:
       return {
         hasError: true,
-        message: "invild  addressType is " + addressType,
+        message: `invild  addressType is ${addressType}`,
       };
   }
   if (!addressValue) {
     return {
       hasError: true,
-      message: "addressValue is empty, addressType is " + addressType,
+      message: `addressValue is empty, addressType is ${addressType}`,
     };
   }
 
@@ -879,14 +879,14 @@ function readHorseHeader(buffer) {
     default:
       return {
         hasError: true,
-        message: "invalid addressType is " + addressType,
+        message: `invalid addressType is ${addressType}`,
       };
   }
 
   if (!addressValue) {
     return {
       hasError: true,
-      message: "address is empty, addressType is " + addressType,
+      message: `address is empty, addressType is ${addressType}`,
     };
   }
 
@@ -925,7 +925,7 @@ async function remoteSocketToWS(remoteSocket, webSocket, responseHeader, retry, 
           }
         },
         close() {
-          log("remoteConnection!.readable is close with hasIncomingData is " + hasIncomingData);
+          log(`remoteConnection!.readable is close with hasIncomingData is ${hasIncomingData}`);
         },
         abort(reason) {
           console.error(`remoteConnection!.readable abort`, reason);
@@ -953,7 +953,7 @@ function safeCloseWebSocket(socket) {
 }
 
 async function checkPrxHealth(prxIP, prxPort) {
-  const req = await fetch(PRX_HEALTH_CHECK_API + "?ip=" + prxIP + ":" + prxPort);
+  const req = await fetch(`${PRX_HEALTH_CHECK_API}?ip=${prxIP}:${prxPort}`);
   return await req.json();
 }
 
@@ -1005,7 +1005,7 @@ function getFlagEmoji(isoCode) {
 // CloudflareApi Class
 class CloudflareApi {
   constructor() {
-    this.bearer = "Bearer " + apiKey;
+    this.bearer = `Bearer ${apiKey}`;
     this.accountID = accountID;
     this.zoneID = zoneID;
     this.apiEmail = apiEmail;
@@ -1019,7 +1019,7 @@ class CloudflareApi {
   }
 
   async getDomainList() {
-    const url = "https://api.cloudflare.com/client/v4/accounts/" + this.accountID + "/workers/domains";
+    const url = `https://api.cloudflare.com/client/v4/accounts/${this.accountID}/workers/domains`;
     const res = await fetch(url, {
       headers: {
         ...this.headers,
@@ -1045,7 +1045,7 @@ class CloudflareApi {
     if (registeredDomains.includes(domain)) return 409;
 
     try {
-      const domainTest = await fetch("https://" + domain.replaceAll("." + APP_DOMAIN, ""));
+      const domainTest = await fetch(`https://${domain.replaceAll("." + APP_DOMAIN, "")}`);
       if (domainTest.status == 530) return domainTest.status;
 
       const badWordsListRes = await fetch(BAD_WORDS_LIST);
@@ -1063,7 +1063,7 @@ class CloudflareApi {
       return 400;
     }
 
-    const url = "https://api.cloudflare.com/client/v4/accounts/" + this.accountID + "/workers/domains";
+    const url = `https://api.cloudflare.com/client/v4/accounts/${this.accountID}/workers/domains`;
     const res = await fetch(url, {
       method: "PUT",
       body: JSON.stringify({
@@ -1081,7 +1081,7 @@ class CloudflareApi {
   }
 
   async deleteDomain(domainId) {
-    const url = "https://api.cloudflare.com/client/v4/accounts/" + this.accountID + "/workers/domains/" + domainId;
+    const url = `https://api.cloudflare.com/client/v4/accounts/${this.accountID}/workers/domains/${domainId}`;
     const res = await fetch(url, {
       method: "DELETE",
       headers: {
@@ -1850,14 +1850,14 @@ class Document {
     setTotalProxy(total) {
         this.html = this.html.replace(
             '<strong id="total-proxy-value" class="font-semibold">0</strong>',
-            '<strong id="total-proxy-value" class="font-semibold">' + total + '</strong>'
+            `<strong id="total-proxy-value" class="font-semibold">${total}</strong>`
         );
     }
     
     setPage(current, total) {
         this.html = this.html.replace(
             '<strong id="page-info-value" class="font-semibold">0/0</strong>',
-            '<strong id="page-info-value" class="font-semibold">' + current + '/' + total + '</strong>'
+            `<strong id="page-info-value" class="font-semibold">${current}/${total}</strong>`
         );
     }
 
@@ -1866,8 +1866,8 @@ setTitle(title) {
   }
 
   addInfo(text) {
-    text = "<span>" + text + "</span>";
-    this.html = this.html.replaceAll("PLACEHOLDER_INFO", text + "\nPLACEHOLDER_INFO");
+    text = `<span>${text}</span>`;
+    this.html = this.html.replaceAll("PLACEHOLDER_INFO", `${text}\nPLACEHOLDER_INFO`);
   }
 
     registerProxies(data, proxies) {
@@ -1879,66 +1879,66 @@ setTitle(title) {
 
     buildProxyGroup() {
     let proxyGroupElement = "";
-    proxyGroupElement += '<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">';
+    proxyGroupElement += `<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">`;
     
     for (let i = 0; i < this.proxies.length; i++) {
         const prx = this.proxies[i];
 
         // Assign proxies
-        proxyGroupElement += '<div class="lozad scale-95 mb-4 bg-blue-300/30 dark:bg-slate-800 transition-all duration-300 rounded-lg p-6 flex flex-col shadow-lg border border-white/20 hover:scale-105 backdrop-blur-md">';
+        proxyGroupElement += `<div class="lozad scale-95 mb-4 bg-blue-300/30 dark:bg-slate-800 transition-all duration-300 rounded-lg p-6 flex flex-col shadow-lg border border-white/20 hover:scale-105 backdrop-blur-md">`;
         
         // Header Kartu: Ping dan Bendera
-        proxyGroupElement += '  <div class="flex justify-between items-center">';
+        proxyGroupElement += `  <div class="flex justify-between items-center">`;
         
         // Elemen Ping di kiri
-        proxyGroupElement += '    <div id="ping-' + i + '" class="animate-pulse text-xs font-semibold text-left">' +
-    '<span class="text-red-500 dark:text-red-400">I</span><span class="text-orange-500 dark:text-orange-400">d</span><span class="text-yellow-500 dark:text-yellow-400">l</span><span class="text-green-500 dark:text-green-400">e</span>' +
-    '<span class="text-slate-500 dark:text-slate-400">' + prx.prxIP + ':' + prx.prxPort + '</span>' +
-'</div>';
+        proxyGroupElement += `    <div id="ping-${i}" class="animate-pulse text-xs font-semibold text-left">
+    <span class="text-red-500 dark:text-red-400">I</span><span class="text-orange-500 dark:text-orange-400">d</span><span class="text-yellow-500 dark:text-yellow-400">l</span><span class="text-green-500 dark:text-green-400">e</span>
+    <span class="text-slate-500 dark:text-slate-400">${prx.prxIP}:${prx.prxPort}</span>
+</div>`;
 
         // Logo Bendera di kanan
-        proxyGroupElement += '    <div class="rounded-full overflow-hidden border-4 border-white dark:border-slate-800">';
-proxyGroupElement += '        <img width="40" src="https://hatscripts.github.io/circle-flags/flags/' + prx.country.toLowerCase() + '.svg" class="flag-spin" />'; // Tambahkan class="flag-spin"
-proxyGroupElement += '    </div>';
+        proxyGroupElement += `    <div class="rounded-full overflow-hidden border-4 border-white dark:border-slate-800">`;
+proxyGroupElement += `        <img width="40" src="https://hatscripts.github.io/circle-flags/flags/${prx.country.toLowerCase()}.svg" class="flag-spin" />`; // Tambahkan class="flag-spin"
+proxyGroupElement += `    </div>`;
         
-        proxyGroupElement += '  </div>'; // Penutup div flexbox
+        proxyGroupElement += `  </div>`; // Penutup div flexbox
         
         // Konten Kartu
-        proxyGroupElement += '  <div class="rounded-lg py-4 px-4 bg-blue-200/20 dark:bg-slate-700/50 flex-grow mt-4">';
-        proxyGroupElement += '    <h5 class="font-bold text-lg text-slate-800 dark:text-slate-100 mb-1 overflow-x-scroll scrollbar-hide text-nowrap">' + prx.org + '</h5>';
-        proxyGroupElement += '    <div class="text-slate-600 dark:text-slate-300 text-sm">';
-        proxyGroupElement += '      <p>IP: ' + prx.prxIP + '</p>';
-        proxyGroupElement += '      <p>Port: ' + prx.prxPort + '</p>';
-        proxyGroupElement += '      <div id="container-region-check-' + i + '">';
-        proxyGroupElement += '        <input id="config-sample-' + i + '" class="hidden" type="text" value="' + prx.list[0] + '">';
-        proxyGroupElement += '      </div>';
-        proxyGroupElement += '    </div>';
-        proxyGroupElement += '  </div>';
+        proxyGroupElement += `  <div class="rounded-lg py-4 px-4 bg-blue-200/20 dark:bg-slate-700/50 flex-grow mt-4">`;
+        proxyGroupElement += `    <h5 class="font-bold text-lg text-slate-800 dark:text-slate-100 mb-1 overflow-x-scroll scrollbar-hide text-nowrap">${prx.org}</h5>`;
+        proxyGroupElement += `    <div class="text-slate-600 dark:text-slate-300 text-sm">`;
+        proxyGroupElement += `      <p>IP: ${prx.prxIP}</p>`;
+        proxyGroupElement += `      <p>Port: ${prx.prxPort}</p>`;
+        proxyGroupElement += `      <div id="container-region-check-${i}">`;
+        proxyGroupElement += `        <input id="config-sample-${i}" class="hidden" type="text" value="${prx.list[0]}">`;
+        proxyGroupElement += `      </div>`;
+        proxyGroupElement += `    </div>`;
+        proxyGroupElement += `  </div>`;
         
         // Tombol Konfigurasi
-        proxyGroupElement += '  <div class="grid grid-cols-2 gap-2 mt-4 text-sm">';
+        proxyGroupElement += `  <div class="grid grid-cols-2 gap-2 mt-4 text-sm">`;
         
         const indexName = [
-            'TROJAN TLS',
-            'VLESS TLS',
-            'SS TLS',
-            'TROJAN NTLS',
-            'VLESS NTLS',
-            'SS NTLS',
+            `TROJAN TLS`,
+            `VLESS TLS`,
+            `SS TLS`,
+            `TROJAN NTLS`,
+            `VLESS NTLS`,
+            `SS NTLS`,
         ];
         
         for (let x = 0; x < prx.list.length; x++) {
             const proxy = prx.list[x];
             // Tombol kuning keemasan di mode terang, tetap biru di mode gelap
-            proxyGroupElement += '<button class="bg-yellow-400 hover:bg-yellow-500 dark:bg-indigo-500 dark:hover:bg-indigo-600 rounded-md p-1.5 w-full text-black dark:text-white font-semibold transition-colors duration-200 text-xs" onclick="copyToClipboard(\'' + proxy + '\')">' + indexName[x] + '</button>';
+            proxyGroupElement += `<button class="bg-yellow-400 hover:bg-yellow-500 dark:bg-indigo-500 dark:hover:bg-indigo-600 rounded-md p-1.5 w-full text-black dark:text-white font-semibold transition-colors duration-200 text-xs" onclick="copyToClipboard('${proxy}')">${indexName[x]}</button>`;
         }
         
-        proxyGroupElement += '  </div>';
-        proxyGroupElement += '</div>'; // Penutup Kartu
+        proxyGroupElement += `  </div>`;
+        proxyGroupElement += `</div>`; // Penutup Kartu
     }
-    proxyGroupElement += '</div>'; // Penutup Grid Kontainer
+    proxyGroupElement += `</div>`; // Penutup Grid Kontainer
 
-    this.html = this.html.replaceAll("PLACEHOLDER_PROXY_GROUP", proxyGroupElement);
+    this.html = this.html.replaceAll("PLACEHOLDER_PROXY_GROUP", `${proxyGroupElement}`);
 }
 
     buildCountryFlag() {
@@ -1957,19 +1957,19 @@ proxyGroupElement += '    </div>';
                 ? 'border-2 border-blue-400 rounded-lg p-0.5' // Classes for selected flag
                 : 'py-1';                                     // Classes for non-selected flag
 
-            flagElement += '<a href="/sub?cc=' + flag + (prxBankUrl ? "&prx-list=" + prxBankUrl : "") +
-                '" class="flex items-center justify-center ' + linkClasses + '" ><img width=30 src="https://hatscripts.github.io/circle-flags/flags/' + flag.toLowerCase() + '.svg" /></a>';
+            flagElement += `<a href="/sub?cc=${flag}${prxBankUrl ? "&prx-list=" + prxBankUrl : ""
+                }" class="flex items-center justify-center ${linkClasses}" ><img width=30 src="https://hatscripts.github.io/circle-flags/flags/${flag.toLowerCase()}.svg" /></a>`;
         }
 
         this.html = this.html.replaceAll("PLACEHOLDER_BENDERA_NEGARA", flagElement);
     }
 
     addPageButton(text, link, isDisabled) {
-        const pageButton = '<li><button ' +
-            (isDisabled ? "disabled" : "") +
-        ' class="px-3 py-3 text-xs bg-indigo-500 hover:bg-indigo-600 disabled:bg-slate-400 dark:disabled:bg-slate-600 text-white font-semibold rounded-md transition-colors" onclick=navigateTo(\'' + link + '\')>' + text + '</button></li>';
+        const pageButton = `<li><button ${
+            isDisabled ? "disabled" : ""
+        } class="px-3 py-3 text-xs bg-indigo-500 hover:bg-indigo-600 disabled:bg-slate-400 dark:disabled:bg-slate-600 text-white font-semibold rounded-md transition-colors" onclick=navigateTo('${link}')>${text}</button></li>`;
 
-        this.html = this.html.replaceAll("PLACEHOLDER_PAGE_BUTTON", pageButton + '\nPLACEHOLDER_PAGE_BUTTON');
+        this.html = this.html.replaceAll("PLACEHOLDER_PAGE_BUTTON", `${pageButton}\nPLACEHOLDER_PAGE_BUTTON`);
     }
 
 
@@ -1985,26 +1985,26 @@ proxyGroupElement += '    </div>';
 
         let whatsappButton = '';
         if (WHATSAPP_NUMBER) {
-            whatsappButton = '<a href="https://wa.me/' + WHATSAPP_NUMBER + '" target="_blank">' +
-                              '<button class="bg-green-500 hover:bg-green-600 rounded-full border-2 border-gray-900 p-2 block transition-colors duration-200">' +
-                                '<img src="https://geoproject.biz.id/circle-flags/whatsapp.png" alt="WhatsApp Icon" class="size-6">' +
-                              '</button>' +
-                            '</a>';
+            whatsappButton = `<a href="https://wa.me/${WHATSAPP_NUMBER}" target="_blank">
+                              <button class="bg-green-500 hover:bg-green-600 rounded-full border-2 border-gray-900 p-2 block transition-colors duration-200">
+                                <img src="https://geoproject.biz.id/circle-flags/whatsapp.png" alt="WhatsApp Icon" class="size-6">
+                              </button>
+                            </a>`;
         }
         this.html = this.html.replace('PLACEHOLDER_WHATSAPP_BUTTON', whatsappButton);
 
         let telegramButton = '';
         if (TELEGRAM_USERNAME) {
-            telegramButton = '<a href="https://t.me/' + TELEGRAM_USERNAME + '" target="_blank">' +
-                              '<button class="bg-blue-500 hover:bg-blue-600 rounded-full border-2 border-gray-900 p-2 block transition-colors duration-200">' +
-                                '<img src="https://geoproject.biz.id/circle-flags/telegram.png" alt="Telegram Icon" class="size-6">' +
-                              '</button>' +
-                            '</a>';
+            telegramButton = `<a href="https://t.me/${TELEGRAM_USERNAME}" target="_blank">
+                              <button class="bg-blue-500 hover:bg-blue-600 rounded-full border-2 border-gray-900 p-2 block transition-colors duration-200">
+                                <img src="https://geoproject.biz.id/circle-flags/telegram.png" alt="Telegram Icon" class="size-6">
+                              </button>
+                            </a>`;
         }
         this.html = this.html.replace('PLACEHOLDER_TELEGRAM_BUTTON', telegramButton);
 
-        this.html = this.html.replaceAll('PLACEHOLDER_CHECK_PROXY_URL', 'https://' + serviceName + '.' + rootDomain + '/check?target=');
-        this.html = this.html.replaceAll('PLACEHOLDER_ROOT_DOMAIN', serviceName + '.' + rootDomain);
+        this.html = this.html.replaceAll('PLACEHOLDER_CHECK_PROXY_URL', `https://${serviceName}.${rootDomain}/check?target=`);
+        this.html = this.html.replaceAll('PLACEHOLDER_ROOT_DOMAIN', `${serviceName}.${rootDomain}`);
         this.html = this.html.replaceAll('PLACEHOLDER_CONVERTER_URL', CONVERTER_URL);
         this.html = this.html.replaceAll('PLACEHOLDER_DONATE_LINK', DONATE_LINK);
 
