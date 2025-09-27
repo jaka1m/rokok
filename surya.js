@@ -1125,6 +1125,11 @@ let baseHTML = `
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script>
     
+    <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+      <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+      
+    
     <style>
         /* For Webkit-based browsers (Chrome, Safari and Opera) */
         .scrollbar-hide::-webkit-scrollbar {
@@ -1191,6 +1196,169 @@ let baseHTML = `
             },
         };
     </script>
+    
+    
+    
+    
+    
+    <script>
+        tailwind.config = { darkMode: 'selector', theme: { extend: {
+            colors: {
+                'accent-blue': '#66b5e8',
+                'accent-purple': '#a466e8',
+            }
+        } } };
+      </script>
+      <style>
+        /* Custom Styles for Modern/Elegant Look */
+        
+        /* START: PENINGKATAN EFEK 3D */
+        body {
+            perspective: 1000px; 
+        }
+        .main-container {
+          background: rgba(30, 41, 59, 0.8); 
+          backdrop-filter: blur(8px);
+          border-radius: 1.5rem;
+          box-shadow: 
+            0 25px 50px rgba(0, 0, 0, 0.7), 
+            0 0 15px rgba(102, 181, 232, 0.2) inset, 
+            0 0 5px rgba(0, 0, 0, 0.5); 
+          border: 1px solid rgba(100, 116, 139, 0.4); 
+          padding: 2rem;
+          margin-bottom: 2rem;
+          transform: translateZ(20px); 
+        }
+        .btn-gradient {
+          background: linear-gradient(to right, var(--tw-color-accent-blue), var(--tw-color-accent-purple));
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2), inset 0 -3px 5px rgba(0, 0, 0, 0.3);
+          transition: all 0.3s ease;
+        }
+        .btn-gradient:hover:not(:disabled) {
+          box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4), inset 0 1px 5px rgba(0, 0, 0, 0.4), inset 0 0 10px rgba(102, 181, 232, 0.8);
+          transform: translateY(1px);
+        }
+        .input-group {
+          background-color: rgba(30, 41, 59, 0.6); 
+          border-radius: 0.75rem; 
+          padding: 1rem; 
+          border: 1px solid rgba(100, 116, 139, 0.3);
+          box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5); 
+        }
+        .input-dark, .input-group textarea, .input-group select {
+          background-color: #1f2937; 
+          color: #ffffff;
+          border: 1px solid #475569; 
+          border-radius: 0.5rem;
+          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6); 
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .input-dark:focus, .input-group textarea:focus, .input-group select:focus {
+          border-color: var(--tw-color-accent-blue);
+          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6), 0 0 5px var(--tw-color-accent-blue); 
+        }
+        .action-btn {
+            background-color: #1e293b; 
+            color: #94a3b8;
+            border: 1px solid #475569;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            background-color: #334155; 
+            color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), inset 0 1px 5px rgba(0, 0, 0, 0.6);
+            transform: translateY(1px);
+        }
+        /* END: PENINGKATAN EFEK 3D */
+
+
+        .table-dark th {
+          background-color: #1e293b; 
+          color: #94a3b8; 
+          font-weight: 600;
+        }
+        .table-dark td {
+          border-color: #334155; 
+        }
+        .table-dark tr:nth-child(even) {
+          background-color: #111827; 
+        }
+        .table-dark tr:hover {
+          background-color: #334155 !important; 
+        }
+        .centered-heading {
+            text-align: center;
+            width: 100%;
+            font-size: 1.5rem; 
+            font-weight: 800; 
+            line-height: 1.2;
+            padding-bottom: 0.5rem;
+        }
+        .nav-btn-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center; 
+            min-height: 50px;
+            padding: 0.75rem 1.5rem;
+            line-height: 1.2;
+            border-radius: 0.75rem;
+        }
+        
+        /* JUDUL PUTIH SOLID */
+        .text-solid-white {
+            color: #ffffff; 
+            text-shadow: none; 
+        }
+        
+        /* --- STYLE BARU UNTUK CEK KUOTA RESULT --- */
+        .result-success {
+          background-color: #1f2937; /* Darker background */
+          border: 1px solid #66b5e8; /* Accent blue border */
+          color: #ffffff;
+          box-shadow: 0 0 15px rgba(102, 181, 232, 0.4); /* Blue glow */
+          transition: all 0.3s ease;
+        }
+        .result-error {
+          background-color: #1f2937; /* Darker background */
+          border: 1px solid #a466e8; /* Accent purple border */
+          color: #ffffff;
+          box-shadow: 0 0 15px rgba(164, 102, 232, 0.4); /* Purple glow */
+          transition: all 0.3s ease;
+        }
+        
+        /* Loading Spinner */
+        #cover-spin {
+          position: fixed;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0,0,0,0.8);
+          z-index: 9999;
+          display: none;
+        }
+        .loader {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          border: 6px solid #f3f3f3;
+          border-top: 6px solid var(--tw-color-accent-blue);
+          border-radius: 50%;
+          width: 50px;
+          height: 50px;
+          animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        
+        
+      </style>
+      
+      
+      
 </head>
 <body
     class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-white bg-fixed transition-colors duration-300"
@@ -1261,7 +1429,7 @@ let baseHTML = `
     </div>
     <div class="mt-4 flex gap-2">
         <input type="text" id="search-bar" placeholder="Search by IP, Port, ISP, or Country..." class="w-full px-4 py-1 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <button onclick="searchProxy()" class="px-4 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">Search</button>
+        <button onclick="searchProxy()" class="text-white px-4 py-1 rounded text-sm font-semibold transition-colors duration-200 action-btn">Search</button>
     </div>
   </div>
 
@@ -1271,14 +1439,12 @@ let baseHTML = `
     </h1>
   </div>
 
-  <div class="w-full max-w-7xl mx-auto p-4">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+  <div class="w-full max-w-5xl mb-8 p-6 bg-gray-800 rounded-xl shadow-xl grid grid-cols-2 md:grid-cols-4 gap-4" style="box-shadow: 0 4px 15px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.2);">
         PLACEHOLDER_PROTOCOL_DROPDOWN
         PLACEHOLDER_COUNTRY_DROPDOWN
         PLACEHOLDER_HOST_DROPDOWN
         PLACEHOLDER_PORT_DROPDOWN
     </div>
-  </div>
 
   <div class="flex flex-col md:flex-row gap-4 pt-8 w-full max-w-7xl justify-center">
     PLACEHOLDER_PROXY_GROUP
@@ -1851,36 +2017,36 @@ setTitle(title) {
             const prx = this.proxies[i];
             const proxyConfigs = prx.list.join(',');
             tableRows += `
-                <tr class="dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">${i + 1}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">${prx.prxIP}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 flex items-center">
-                        <img src="https://hatscripts.github.io/circle-flags/flags/${prx.country.toLowerCase()}.svg" width="20" class="inline mr-2 rounded-full"/>
-                        ${prx.country}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">${prx.org}</td>
-                    <td id="ping-${i}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white">${prx.prxIP}:${prx.prxPort}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button onclick="copyToClipboard('${proxyConfigs}')" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Copy</button>
-                    </td>
-                </tr>
+                <tr class="border-t border-gray-700 hover:bg-gray-800">
+    <td class="px-3 py-3 text-base text-gray-400 text-center">${i + 1}</td>
+    <td class="px-3 py-3 text-base font-mono text-center">${prx.prxIP}</td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 flex items-center justify-center">
+        <img src="https://hatscripts.github.io/circle-flags/flags/${prx.country.toLowerCase()}.svg" width="20" class="inline mr-2 rounded-full"/>
+        ${prx.country}
+    </td>
+    <td class="px-3 py-3 text-base truncate max-w-[150px] text-center">${prx.org}</td>
+    <td id="ping-${i}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white text-center">${prx.prxIP}:${prx.prxPort}</td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
+        <button onclick="copyToClipboard('${proxyConfigs}')" class="text-white px-4 py-1 rounded text-sm font-semibold transition-colors duration-200 action-btn">Copy</button>
+    </td>
+</tr>
             `;
         }
 
         const table = `
-            <div class="overflow-x-auto shadow-md sm:rounded-lg">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead class="bg-gray-50 dark:bg-gray-700">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">No.</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">IP</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Country</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">ISP</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Status</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">Action</th>
+            <div class="overflow-x-auto w-full max-w-full">
+            <table class="min-w-full table-dark bg-gray-800 border border-gray-700 rounded-xl text-base overflow-hidden" style="box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                <thead>
+                    <tr class="text-gray-400">
+                            <th class="px-3 py-3 text-center">No.</th>
+                            <th class="px-3 py-3 text-center">IP</th>
+                            <th class="px-3 py-3 text-center">Country</th>
+                            <th class="px-3 py-3 text-center">ISP</th>
+                            <th class="px-3 py-3 text-center">Status</th>
+                            <th class="px-3 py-3 text-center">Action</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <tbody>
                         ${tableRows}
                     </tbody>
                 </table>
@@ -1916,7 +2082,7 @@ setTitle(title) {
     addPageButton(text, link, isDisabled) {
         const pageButton = `<li><button ${
             isDisabled ? "disabled" : ""
-        } class="px-3 py-3 text-xs bg-indigo-500 hover:bg-indigo-600 disabled:bg-slate-400 dark:disabled:bg-slate-600 text-white font-semibold rounded-md transition-colors" onclick=navigateTo('${link}')>${text}</button></li>`;
+        } class="px-6 py-2 text-white rounded-lg disabled:opacity-50 text-base font-semibold btn-gradient hover:opacity-80 transition-opacity" onclick=navigateTo('${link}')>${text}</button></li>`;
 
         this.html = this.html.replaceAll("PLACEHOLDER_PAGE_BUTTON", `${pageButton}\nPLACEHOLDER_PAGE_BUTTON`);
     }
@@ -1988,8 +2154,8 @@ setTitle(title) {
         }
         this.html = this.html.replace('PLACEHOLDER_PROTOCOL_DROPDOWN', `
             <div class="relative">
-                <label for="protocol-select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Protocol</label>
-                <select onchange="applyFilters()" id="protocol-select" class="w-full p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <label for="protocol-select" class="block font-medium mb-2 text-gray-300 text-sm">Protocol</label>
+                <select onchange="applyFilters()" id="protocol-select" class="w-full px-3 py-2 rounded-lg input-dark text-base focus:ring-2">
                     ${protocolOptions}
                 </select>
             </div>
@@ -2003,8 +2169,8 @@ setTitle(title) {
         }
         this.html = this.html.replace('PLACEHOLDER_COUNTRY_DROPDOWN', `
             <div class="relative">
-                <label for="country-select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Country</label>
-                <select onchange="applyFilters()" id="country-select" class="w-full p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <label for="country-select" class="block font-medium mb-2 text-gray-300 text-sm">Country</label>
+                <select onchange="applyFilters()" id="country-select" class="w-full px-3 py-2 rounded-lg input-dark text-base focus:ring-2">
                     ${countryOptions}
                 </select>
             </div>
@@ -2018,8 +2184,8 @@ setTitle(title) {
         }
         this.html = this.html.replace('PLACEHOLDER_HOST_DROPDOWN', `
             <div class="relative">
-                <label for="host-select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Wildcard/Host</label>
-                <select onchange="applyFilters()" id="host-select" class="w-full p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <label for="host-select" class="block font-medium mb-2 text-gray-300 text-sm">Wildcard/Host</label>
+                <select onchange="applyFilters()" id="host-select" class="w-full px-3 py-2 rounded-lg input-dark text-base focus:ring-2">
                     ${hostOptions}
                 </select>
             </div>
@@ -2042,8 +2208,8 @@ setTitle(title) {
         }
         this.html = this.html.replace('PLACEHOLDER_PORT_DROPDOWN', `
             <div class="relative">
-                <label for="port-select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Security/Port</label>
-                <select onchange="applyFilters()" id="port-select" class="w-full p-2.5 text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <label for="port-select" class="block font-medium mb-2 text-gray-300 text-sm">Security/Port</label>
+                <select onchange="applyFilters()" id="port-select" class="w-full px-3 py-2 rounded-lg input-dark text-base focus:ring-2">
                     ${portOptions}
                 </select>
             </div>
